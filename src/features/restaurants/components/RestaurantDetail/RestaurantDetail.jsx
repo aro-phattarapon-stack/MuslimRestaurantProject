@@ -6,8 +6,7 @@ import {
   Navigation,
   Utensils,
   Car,
-  Coffee,
-  AlertTriangle
+  Check
 } from "lucide-react";
 
 import { openGoogleMaps } from "../../utils/googleMaps";
@@ -21,14 +20,6 @@ export default function RestaurantDetail({
   onClose
 }) {
   if (!restaurant) return null;
-
-  const status =
-    restaurant.halalStatus === "certified" && restaurant.verified
-      ? "Halal Certified"
-      : restaurant.halalStatus === "muslim-friendly" &&
-          restaurant.verified
-        ? "Muslim-Friendly"
-        : "Unverified";
 
   return (
     <div
@@ -56,34 +47,23 @@ export default function RestaurantDetail({
           </button>
         </header>
 
-        <div className="detail-image">
-          {restaurant.image ? (
-            <img src={restaurant.image} alt={restaurant.name} />
-          ) : (
-            <div className="image-placeholder">
-              <Utensils size={36} />
-              <span>Halal Chiang Rai</span>
-            </div>
-          )}
+        <div className="detail-identity">
+          <span className="detail-identity-icon" aria-hidden="true">
+            <Utensils size={30} />
+          </span>
+          <div>
+            <span className="detail-category">{restaurant.cuisine}</span>
+            <strong>{restaurant.priceLevel || "ราคาไม่ระบุ"}</strong>
+          </div>
         </div>
 
         <div className="detail-body">
-          <span
-            className={`badge ${
-              status === "Halal Certified"
-                ? "badge-certified"
-                : status === "Muslim-Friendly"
-                  ? "badge-friendly"
-                  : "badge-unverified"
-            }`}
-          >
-            {status === "Halal Certified"
-              ? "✓ "
-              : status === "Muslim-Friendly"
-                ? "✦ "
-                : "! "}
-            {status}
-          </span>
+          {restaurant.verified && (
+            <span className="badge badge-certified">
+              <Check size={14} strokeWidth={3} />
+              ยืนยันแล้ว
+            </span>
+          )}
 
           <h2 id="detail-title">{restaurant.name}</h2>
 
@@ -91,20 +71,10 @@ export default function RestaurantDetail({
             {restaurant.description}
           </p>
 
-          {status === "Unverified" && (
-            <div className="notice notice-warning">
-              <AlertTriangle size={18} />
-              <p>
-                ข้อมูลร้านยังไม่ได้รับการยืนยัน
-                โปรดตรวจสอบสถานะฮาลาลกับร้านโดยตรงก่อนสั่งอาหาร
-              </p>
-            </div>
-          )}
-
           <div className="detail-info-row">
             <MapPin size={18} />
             <span>
-              {restaurant.district} ·{" "}
+              {restaurant.address || restaurant.district} ·{" "}
               {restaurant.zone === "MFU"
                 ? "บริเวณมหาวิทยาลัยแม่ฟ้าหลวง"
                 : restaurant.zone === "CITY"

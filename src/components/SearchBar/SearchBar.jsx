@@ -21,8 +21,8 @@ export default function SearchBar({
         type="search"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        placeholder="ค้นหาร้าน เมนู หรือพื้นที่..."
-        aria-label="ค้นหาร้านอาหาร เมนู หรือพื้นที่"
+           placeholder="ค้นหาร้าน เมนู หรือพื้นที่..."
+           aria-label="ค้นหาร้านอาหาร เมนู หรือพื้นที่"
       />
 
       {value && (

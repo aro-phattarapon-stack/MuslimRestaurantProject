@@ -2,21 +2,23 @@ import {
   House,
   Search,
   Heart,
-  Info
+  Info,
+  UserRound
 } from "lucide-react";
 
 import "./BottomNav.css";
 
 const navItems = [
-  { id: "home", label: "หน้าหลัก", icon: House },
-  { id: "search", label: "ค้นหาร้าน", icon: Search },
-  { id: "favorites", label: "ร้านโปรด", icon: Heart },
-  { id: "about", label: "เกี่ยวกับ", icon: Info }
+  { id: "home", key: "home", icon: House },
+  { id: "search", key: "search", icon: Search },
+  { id: "favorites", key: "favorites", icon: Heart },
+  { id: "about", key: "about", icon: Info },
+  { id: "account", key: "account", icon: UserRound }
 ];
 
-export default function BottomNav({ active, onChange }) {
+export default function BottomNav({ active, onChange, t }) {
   return (
-    <nav className="bottom-nav" aria-label="เมนูหลัก">
+    <nav className="bottom-nav" aria-label={t("home")}>
       {navItems.map((item) => {
         const Icon = item.icon;
         const selected = active === item.id;
@@ -32,7 +34,7 @@ export default function BottomNav({ active, onChange }) {
             onClick={() => onChange(item.id)}
           >
             <Icon size={21} />
-            <span>{item.label}</span>
+            <span>{t(item.key)}</span>
           </button>
         );
       })}

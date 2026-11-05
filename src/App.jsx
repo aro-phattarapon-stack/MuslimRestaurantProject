@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Leaf, MapPin } from "lucide-react";
+import { Globe2, Leaf, MapPin, UserRound } from "lucide-react";
 
 import { cuisineTypes, restaurants, zones } from "./features/restaurants/data/restaurants";
 import { recommendRestaurants } from "./features/restaurants/utils/recommend";
@@ -10,6 +10,9 @@ import HomePage from "./pages/Home/HomePage";
 import RestaurantDetail from "./features/restaurants/components/RestaurantDetail/RestaurantDetail";
 import RestaurantList from "./features/restaurants/components/RestaurantList/RestaurantList";
 import SearchPage from "./pages/Search/SearchPage";
+import AccountPage from "./pages/Account/AccountPage";
+import AuthModal from "./components/AuthModal/AuthModal";
+import { translate } from "./i18n";
 
 const DEFAULT_FILTERS = { zone: "ALL", cuisine: "ทั้งหมด", budget: 300 };
 
@@ -21,13 +24,25 @@ export default function App() {
   const [budget, setBudget] = useState(DEFAULT_FILTERS.budget);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
-  const [favorites, setFavorites] = useState([]);
+  const [account, setAccount] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("halal-session")) || null; } catch { return null; }
+  });
+  const [favorites, setFavorites] = useState(() => {
+    try {
+      const session = JSON.parse(localStorage.getItem("halal-session"));
+      return session ? JSON.parse(localStorage.getItem(`halal-favorites-${session.email}`) || "[]") : [];
+    } catch { return []; }
+  });
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState("login");
+  const [language, setLanguage] = useState(() => localStorage.getItem("halal-language") || "th");
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiMessage, setAiMessage] = useState("");
 
   const filteredRestaurants = useMemo(() => recommendRestaurants(restaurants, { query, zone, cuisine, maxBudget: budget }), [query, zone, cuisine, budget]);
   const featuredRestaurants = useMemo(() => recommendRestaurants(restaurants, { zone: "ALL", maxBudget: 2000 }), []);
   const favoriteRestaurants = useMemo(() => restaurants.filter((restaurant) => favorites.includes(restaurant.id)), [favorites]);
+  const t = (key) => translate(language, key);
 
   function resetFilters() {
     setQuery("");
@@ -37,7 +52,38 @@ export default function App() {
   }
 
   function toggleFavorite(id) {
-    setFavorites((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+    if (!account) {
+      setAuthMode("login");
+      setAuthOpen(true);
+      return;
+    }
+    const nextFavorites = favorites.includes(id) ? favorites.filter((item) => item !== id) : [...favorites, id];
+    setFavorites(nextFavorites);
+    localStorage.setItem(`halal-favorites-${account.email}`, JSON.stringify(nextFavorites));
+  }
+
+  function changeLanguage(nextLanguage) {
+    setLanguage(nextLanguage);
+    localStorage.setItem("halal-language", nextLanguage);
+  }
+
+  function openAccount() {
+    if (account) setActiveTab("account");
+    else { setAuthMode("login"); setAuthOpen(true); }
+  }
+
+  function handleAuthenticated(nextAccount) {
+    setAccount(nextAccount);
+    setFavorites(JSON.parse(localStorage.getItem(`halal-favorites-${nextAccount.email}`) || "[]"));
+    setAuthOpen(false);
+    setActiveTab("account");
+  }
+
+  function signOut() {
+    localStorage.removeItem("halal-session");
+    setAccount(null);
+    setFavorites([]);
+    setActiveTab("home");
   }
 
   function handleAiRecommend(event) {
@@ -64,42 +110,48 @@ export default function App() {
   }
 
   function renderRestaurantList(list) {
-    return <RestaurantList restaurants={list} favorites={favorites} onToggleFavorite={toggleFavorite} onSelect={setSelectedRestaurant} onReset={resetFilters} />;
+    return <RestaurantList restaurants={list} favorites={favorites} onToggleFavorite={toggleFavorite} onSelect={setSelectedRestaurant} onReset={resetFilters} t={t} />;
   }
 
   return (
     <div className="app-shell">
       <header className="top-header">
-        <button className="brand" type="button" onClick={() => setActiveTab("home")} aria-label="กลับหน้าหลัก Halal Chiang Rai">
+        <button className="brand" type="button" onClick={() => setActiveTab("home")} aria-label="Halal Chiang Rai">
           <span className="brand-icon"><Leaf size={24} /></span>
           <span className="brand-copy"><strong>Halal Chiang Rai</strong><small>Discover with confidence</small></span>
         </button>
-        <span className="location-pill"><MapPin size={15} /> เชียงราย</span>
+        <div className="header-actions">
+          <button className="language-button" type="button" onClick={() => changeLanguage(language === "th" ? "en" : "th")} aria-label={`${t("language")}: ${language === "th" ? "English" : "ไทย"}`}><Globe2 size={16} /><span>{language === "th" ? "EN" : "TH"}</span></button>
+          <button className={`account-button ${account ? "signed-in" : ""}`} type="button" onClick={openAccount} aria-label={account ? t("account") : t("signIn")}><UserRound size={17} />{account ? <span>{account.name.split(" ")[0]}</span> : null}</button>
+          <span className="location-pill"><MapPin size={15} /> {t("location")}</span>
+        </div>
       </header>
 
       <main className="main-content">
         {activeTab === "home" && (
-          <HomePage query={query} onQueryChange={setQuery} onSearch={() => setActiveTab("search")} aiPrompt={aiPrompt} onAiPromptChange={setAiPrompt} onAiRecommend={handleAiRecommend} aiMessage={aiMessage} zones={zones} selectedZone={zone} onZoneSelect={(nextZone) => { setZone(nextZone); setActiveTab("search"); }} onShowAll={() => setActiveTab("search")}>
+          <HomePage t={t} query={query} onQueryChange={setQuery} onSearch={() => setActiveTab("search")} aiPrompt={aiPrompt} onAiPromptChange={setAiPrompt} onAiRecommend={handleAiRecommend} aiMessage={aiMessage} zones={zones} selectedZone={zone} onZoneSelect={(nextZone) => { setZone(nextZone); setActiveTab("search"); }} onShowAll={() => setActiveTab("search")}>
             {renderRestaurantList(featuredRestaurants)}
           </HomePage>
         )}
 
         {activeTab === "search" && (
-          <SearchPage query={query} onQueryChange={setQuery} onSearch={() => {}} showFilters={showFilters} onToggleFilters={() => setShowFilters((current) => !current)} zone={zone} onZoneChange={setZone} zones={zones} cuisine={cuisine} onCuisineChange={setCuisine} cuisineTypes={cuisineTypes} budget={budget} onBudgetChange={setBudget} onReset={resetFilters} resultCount={filteredRestaurants.length}>
+          <SearchPage t={t} query={query} onQueryChange={setQuery} onSearch={() => {}} showFilters={showFilters} onToggleFilters={() => setShowFilters((current) => !current)} zone={zone} onZoneChange={setZone} zones={zones} cuisine={cuisine} onCuisineChange={setCuisine} cuisineTypes={cuisineTypes} budget={budget} onBudgetChange={setBudget} onReset={resetFilters} resultCount={filteredRestaurants.length}>
             {renderRestaurantList(filteredRestaurants)}
           </SearchPage>
         )}
 
         {activeTab === "favorites" && (
-          <FavoritesPage restaurants={favoriteRestaurants} favorites={favorites} onToggleFavorite={toggleFavorite} onSelect={setSelectedRestaurant} onReset={resetFilters} />
+          <FavoritesPage restaurants={favoriteRestaurants} favorites={favorites} loggedIn={Boolean(account)} onRequestLogin={openAccount} onToggleFavorite={toggleFavorite} onSelect={setSelectedRestaurant} onReset={resetFilters} t={t} />
         )}
 
-        {activeTab === "about" && <AboutPage />}
+        {activeTab === "about" && <AboutPage t={t} />}
+        {activeTab === "account" && account && <AccountPage account={account} favoritesCount={favoriteRestaurants.length} language={language} onLanguageChange={changeLanguage} onSignOut={signOut} t={t} />}
       </main>
 
       <footer className="app-footer"><p>Halal Chiang Rai · Made for discovering Chiang Rai</p><p>ตรวจสอบสถานะฮาลาลกับร้านก่อนใช้บริการ</p></footer>
-      <BottomNav active={activeTab} onChange={setActiveTab} />
-      {selectedRestaurant && <RestaurantDetail restaurant={selectedRestaurant} isFavorite={favorites.includes(selectedRestaurant.id)} onToggleFavorite={toggleFavorite} onClose={() => setSelectedRestaurant(null)} />}
+      <BottomNav active={activeTab} onChange={(nextTab) => nextTab === "account" ? openAccount() : setActiveTab(nextTab)} t={t} />
+      {selectedRestaurant && <RestaurantDetail t={t} restaurant={selectedRestaurant} isFavorite={favorites.includes(selectedRestaurant.id)} onToggleFavorite={toggleFavorite} onClose={() => setSelectedRestaurant(null)} />}
+      {authOpen && <AuthModal mode={authMode} onClose={() => setAuthOpen(false)} onAuthenticated={handleAuthenticated} t={t} />}
     </div>
   );
 }

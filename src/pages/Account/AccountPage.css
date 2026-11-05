@@ -1,0 +1,16 @@
+.account-hero { display: flex; align-items: center; gap: 14px; padding: 18px; border-radius: var(--radius-lg); background: var(--emerald-50); }
+.account-avatar { display: grid; place-items: center; width: 58px; height: 58px; flex-shrink: 0; border-radius: 18px; background: var(--emerald-700); color: var(--surface-0); }
+.account-hero h2 { margin: 0; font-size: 20px; }
+.account-hero p { display: flex; align-items: center; gap: 5px; margin: 4px 0 0; color: var(--ink-600); font-size: 12px; overflow-wrap: anywhere; }
+.account-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 14px 0; }
+.account-stats > div { display: grid; gap: 2px; padding: 14px; border: 1px solid var(--sand-200); border-radius: var(--radius-md); background: var(--surface-0); }
+.account-stats strong { color: var(--emerald-700); font-size: 22px; }
+.account-stats span { color: var(--ink-600); font-size: 11px; }
+.account-card { padding: 4px 14px; border: 1px solid var(--sand-200); border-radius: var(--radius-lg); background: var(--surface-0); }
+.account-row { display: flex; align-items: center; gap: 10px; min-height: 64px; color: var(--ink-800); font-weight: 600; }
+.account-row > svg { color: var(--emerald-700); }
+.language-switch { display: flex; gap: 4px; margin-left: auto; padding: 3px; border-radius: 10px; background: var(--sand-100); }
+.language-switch button { min-height: 34px; padding: 5px 9px; border: 0; border-radius: 8px; background: transparent; color: var(--ink-600); font-size: 11px; font-weight: 700; }
+.language-switch button.active { background: var(--surface-0); color: var(--emerald-700); box-shadow: var(--shadow-1); }
+.account-signout { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; margin-top: 14px; border: 1px solid rgba(220, 38, 38, 0.25); border-radius: var(--radius-md); background: transparent; color: var(--danger); font-weight: 700; }
+.account-note { display: flex; align-items: center; gap: 7px; justify-content: center; margin-top: 18px; color: var(--ink-400); font-size: 11px; text-align: center; }

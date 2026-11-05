@@ -7,19 +7,37 @@ export default function FavoritesPage({
   favorites,
   onToggleFavorite,
   onSelect,
-  onReset
+  onReset,
+  loggedIn,
+  onRequestLogin,
+  t
 }) {
+  if (!loggedIn) {
+    return (
+      <section className="page-section favorites-gate">
+        <span className="eyebrow">{t("yourCollection")}</span>
+        <h1 className="page-title">{t("favorites")}</h1>
+        <div className="empty-state">
+          <h3>{t("loginToSave")}</h3>
+          <p>{t("favoriteRequiresLogin")}</p>
+          <button className="button-primary" type="button" onClick={onRequestLogin}>{t("signIn")}</button>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="page-section">
-      <span className="eyebrow">YOUR COLLECTION</span>
-      <h1 className="page-title">ร้านโปรด</h1>
-      <p className="section-description">ร้านที่คุณบันทึกไว้เพื่อกลับมาดูอีกครั้ง</p>
+      <span className="eyebrow">{t("yourCollection")}</span>
+      <h1 className="page-title">{t("favorites")}</h1>
+      <p className="section-description">{t("savedForLater")}</p>
       <RestaurantList
         restaurants={restaurants}
         favorites={favorites}
         onToggleFavorite={onToggleFavorite}
         onSelect={onSelect}
         onReset={onReset}
+        t={t}
       />
     </section>
   );

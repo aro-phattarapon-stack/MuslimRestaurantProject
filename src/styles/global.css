@@ -5,16 +5,16 @@
   --emerald-700: #047857;
   --emerald-800: #065f46;
   --emerald-50: #ecfdf5;
-  --sand-50: #fffefc;
-  --sand-100: #ffffff;
-  --sand-200: #dbdbde;
-  --surface-0: #ffffff;
+  --sand-50: #fffaf1;
+  --sand-100: #f5ead8;
+  --sand-200: #e6d9c7;
+  --surface-0: #fffdf8;
   --ink-800: #1f2937;
   --ink-600: #4b5563;
   --ink-400: #9ca3af;
   --pastel-mint: #d9f2e4;
-  --pastel-peach: #d73a6c;
-  --pastel-sky: #dbeaf9;
+  --pastel-peach: #f6d8c6;
+  --pastel-sky: #dceee8;
   --warning-bg: #fdeeca;
   --warning-text: #b45309;
   --danger: #dc2626;
@@ -154,6 +154,12 @@ img {
   font-size: 12px;
   font-weight: 600;
 }
+.header-actions { display: flex; align-items: center; gap: 6px; }
+.language-button, .account-button { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 36px; border: 1px solid var(--sand-200); border-radius: var(--radius-full); background: var(--surface-0); color: var(--ink-600); font-size: 11px; font-weight: 700; }
+.language-button { width: 42px; }
+.account-button { max-width: 90px; padding: 6px 9px; overflow: hidden; }
+.account-button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-button.signed-in { border-color: var(--emerald-600); color: var(--emerald-700); }
 .main-content {
   padding: 0 16px;
 }
@@ -239,19 +245,6 @@ img {
   font-size: 13px;
 }
 
-.image-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, var(--sand-100), var(--pastel-mint));
-  color: var(--emerald-700);
-  font-size: 13px;
-  font-weight: 600;
-}
 .badge {
   display: inline-flex;
   align-items: center;
@@ -272,12 +265,6 @@ img {
   background: var(--pastel-peach);
   color: var(--ink-800);
 }
-.badge-unverified {
-  border: 1px dashed var(--warning-text);
-  background: var(--warning-bg);
-  color: var(--warning-text);
-}
-
 .notice {
   display: flex;
   align-items: flex-start;

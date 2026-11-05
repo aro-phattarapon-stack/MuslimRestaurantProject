@@ -2,36 +2,24 @@ import {
   Heart,
   MapPin,
   Clock,
-  Utensils
+  Utensils,
+  ArrowUpRight,
+  Check
 } from "lucide-react";
 
 import "./RestaurantCard.css";
 
 function StatusBadge({ restaurant }) {
-  if (restaurant.halalStatus === "certified" && restaurant.verified) {
+  if (restaurant.verified) {
     return (
       <span className="badge badge-certified">
-        ✓ Halal Certified
+        <Check size={14} strokeWidth={3} />
+        ยืนยันแล้ว
       </span>
     );
   }
 
-  if (
-    restaurant.halalStatus === "muslim-friendly" &&
-    restaurant.verified
-  ) {
-    return (
-      <span className="badge badge-friendly">
-        ✦ Muslim-Friendly
-      </span>
-    );
-  }
-
-  return (
-    <span className="badge badge-unverified">
-      ! Unverified
-    </span>
-  );
+  return null;
 }
 
 export default function RestaurantCard({
@@ -54,20 +42,11 @@ export default function RestaurantCard({
         }
       }}
     >
-      <div className="restaurant-image">
-        {restaurant.image ? (
-          <img
-            src={restaurant.image}
-            alt={restaurant.name}
-            loading="lazy"
-          />
-        ) : (
-          <div className="image-placeholder">
-            <Utensils size={32} />
-            <span>Halal Chiang Rai</span>
-          </div>
-        )}
-
+      <div className="restaurant-card-topline">
+        <span className="restaurant-type-icon" aria-hidden="true">
+          <Utensils size={22} />
+        </span>
+        <span className="restaurant-type">{restaurant.cuisine}</span>
         <button
           type="button"
           className={`favorite-button ${
@@ -115,15 +94,15 @@ export default function RestaurantCard({
 
         <div className="restaurant-footer">
           <span className="price-range">
-            {restaurant.minPrice != null
-              ? `เริ่ม ฿${restaurant.minPrice}`
-              : "ไม่ระบุราคา"}
+            {restaurant.priceLevel || "ราคาไม่ระบุ"}
           </span>
 
           <span className="opening-hours">
             <Clock size={14} />
             {restaurant.openingHours}
           </span>
+
+          <ArrowUpRight className="card-arrow" size={18} aria-hidden="true" />
         </div>
       </div>
     </article>
