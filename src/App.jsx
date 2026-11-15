@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
-import { Globe2, Leaf, MapPin, UserRound } from "lucide-react";
+import { Globe2, MapPin, UserRound } from "lucide-react";
+import logoImg from "../logo-transparent.png";
 
 import { cuisineTypes, restaurants, zones } from "./features/restaurants/data/restaurants";
 import { recommendRestaurants } from "./features/restaurants/utils/recommend";
 import BottomNav from "./components/BottomNav/BottomNav";
+import AboutPage from "./pages/About/AboutPage";
 import FavoritesPage from "./pages/Favorites/FavoritesPage";
 import HomePage from "./pages/Home/HomePage";
 import RestaurantDetail from "./features/restaurants/components/RestaurantDetail/RestaurantDetail";
@@ -39,7 +41,7 @@ export default function App() {
   const [aiMessage, setAiMessage] = useState("");
 
   const filteredRestaurants = useMemo(() => recommendRestaurants(restaurants, { query, zone, cuisine, maxBudget: budget }), [query, zone, cuisine, budget]);
-  const featuredRestaurants = useMemo(() => recommendRestaurants(restaurants, { zone: "ALL", maxBudget: 2000 }).slice(0, 6), []);
+  const featuredRestaurants = useMemo(() => recommendRestaurants(restaurants, { zone: "ALL", maxBudget: 2000 }), []);
   const favoriteRestaurants = useMemo(() => restaurants.filter((restaurant) => favorites.includes(restaurant.id)), [favorites]);
   const t = (key) => translate(language, key);
 
@@ -116,9 +118,12 @@ export default function App() {
     <div className="app-shell">
       <header className="top-header">
         <button className="brand" type="button" onClick={() => setActiveTab("home")} aria-label="Halal Chiang Rai">
-          <span className="brand-icon"><Leaf size={24} /></span>
-          <span className="brand-copy"><strong>Halal Chiang Rai</strong><small>Discover with confidence</small></span>
-        </button>
+  <span className="brand-icon">
+  <img src={logoImg} alt="Halal Chiang Rai" />
+</span>
+  <span className="brand-copy"><strong>Halal Chiang Rai</strong><small>Discover with confidence</small></span>
+</button>
+
         <div className="header-actions">
           <button className="language-button" type="button" onClick={() => changeLanguage(language === "th" ? "en" : "th")} aria-label={`${t("language")}: ${language === "th" ? "English" : "ไทย"}`}><Globe2 size={16} /><span>{language === "th" ? "EN" : "TH"}</span></button>
           <button className={`account-button ${account ? "signed-in" : ""}`} type="button" onClick={openAccount} aria-label={account ? t("account") : t("signIn")}><UserRound size={17} />{account ? <span>{account.name.split(" ")[0]}</span> : null}</button>
@@ -128,7 +133,7 @@ export default function App() {
 
       <main className="main-content">
         {activeTab === "home" && (
-          <HomePage t={t} aiPrompt={aiPrompt} onAiPromptChange={setAiPrompt} onAiRecommend={handleAiRecommend} aiMessage={aiMessage} zones={zones} selectedZone={zone} onZoneSelect={(nextZone) => { setZone(nextZone); setActiveTab("search"); }} onShowAll={() => setActiveTab("search")}>
+          <HomePage t={t} query={query} onQueryChange={setQuery} onSearch={() => setActiveTab("search")} aiPrompt={aiPrompt} onAiPromptChange={setAiPrompt} onAiRecommend={handleAiRecommend} aiMessage={aiMessage} zones={zones} selectedZone={zone} onZoneSelect={(nextZone) => { setZone(nextZone); setActiveTab("search"); }} onShowAll={() => setActiveTab("search")}>
             {renderRestaurantList(featuredRestaurants)}
           </HomePage>
         )}
@@ -143,6 +148,7 @@ export default function App() {
           <FavoritesPage restaurants={favoriteRestaurants} favorites={favorites} loggedIn={Boolean(account)} onRequestLogin={openAccount} onToggleFavorite={toggleFavorite} onSelect={setSelectedRestaurant} onReset={resetFilters} t={t} />
         )}
 
+        {activeTab === "about" && <AboutPage t={t} />}
         {activeTab === "account" && account && <AccountPage account={account} favoritesCount={favoriteRestaurants.length} language={language} onLanguageChange={changeLanguage} onSignOut={signOut} t={t} />}
       </main>
 

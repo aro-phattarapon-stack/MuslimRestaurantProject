@@ -1,13 +1,15 @@
 import { ArrowRight, MapPin, Sparkles } from "lucide-react";
+import SearchBar from "../../components/SearchBar/SearchBar";
 import "./HomePage.css";
 
-export default function HomeView({ aiPrompt, onAiPromptChange, onAiRecommend, aiMessage, zones, selectedZone, onZoneSelect, onShowAll, children, t }) {
+export default function HomeView({ query, onQueryChange, onSearch, aiPrompt, onAiPromptChange, onAiRecommend, aiMessage, zones, selectedZone, onZoneSelect, onShowAll, children, t }) {
   return (
     <>
       <section className="hero-section">
         <span className="eyebrow"><Sparkles size={15} /> {t("heroEyebrow")}</span>
         <h1>{t("heroTitle")}</h1>
         <p>{t("heroDescription")}</p>
+        <button className="hero-link" type="button" onClick={onShowAll}>{t("viewAll")} <ArrowRight size={17} /></button>
       </section>
       <section className="ai-section">
         <div className="section-heading"><div className="ai-icon"><Sparkles size={21} /></div><div><h2>{t("aiTitle")}</h2><p>{t("aiSubtitle")}</p></div></div>

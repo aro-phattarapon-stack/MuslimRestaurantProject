@@ -1,5 +1,5 @@
-.auth-backdrop { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 20px; background: rgba(10, 48, 39, 0.72); }
-.auth-modal { position: relative; width: min(100%, 410px); padding: 28px 22px 22px; border: 1px solid var(--sand-200); border-radius: 22px; background: var(--surface-0); box-shadow: 0 24px 70px rgba(10, 48, 39, 0.25); }
+.auth-backdrop { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 20px; background: rgba(255, 255, 255, 0.85); }
+.auth-modal { position: relative; width: min(100%, 410px); padding: 28px 22px 22px; border: 1px solid var(--sand-200); border-radius: 22px; background: var(--surface-0); box-shadow: 0 24px 70px rgba(0, 0, 0, 0.15); }
 .auth-close { position: absolute; top: 12px; right: 12px; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: transparent; color: var(--ink-600); }
 .auth-mark { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 16px; border-radius: 15px; background: var(--emerald-700); color: var(--surface-0); }
 .auth-modal h1 { margin: 8px 0 4px; font-size: 28px; line-height: 1.25; }

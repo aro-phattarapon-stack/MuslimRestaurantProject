@@ -1,20 +1,20 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap");
 
 :root {
-  --emerald-600: #f87da2;
-  --emerald-700: #f5a7be;
-  --emerald-800: #f8bbcb;
-  --emerald-50: #fbbed0;
+  --emerald-600: #fda5dd;
+  --emerald-700: #feacdc;
+  --emerald-800: #f741a5;
+  --emerald-50: #ffe4f1;
   --sand-50: #fffaf1;
   --sand-100: #f5ead8;
   --sand-200: #e6d9c7;
-  --surface-0: #ffffff;
+  --surface-0: #fffdf8;
   --ink-800: #1f2937;
   --ink-600: #4b5563;
   --ink-400: #9ca3af;
-  --pastel-mint: #fd5b8b;
+  --pastel-mint: #ffc2e1;
   --pastel-peach: #f6d8c6;
-  --pastel-sky: #dceee8;
+  --pastel-sky: #fcb9de;
   --warning-bg: #fdeeca;
   --warning-text: #b45309;
   --danger: #dc2626;
@@ -119,12 +119,18 @@ img {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  background: var(--emerald-700);
-  color: var(--surface-0);
-  box-shadow: 0 6px 14px rgba(4, 120, 87, 0.2);
+  width: 68px;
+  height: 68px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.brand-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(1.65) translateY(4px);
+  mix-blend-mode: multiply;
 }
 .brand-copy {
   display: flex;
@@ -133,7 +139,7 @@ img {
 }
 .brand-copy strong {
   font-family: "DM Sans", "Noto Sans Thai", sans-serif;
-  font-size: 15px;
+  font-size: 20px;
   line-height: 1.4;
   font-weight: 700;
 }
@@ -344,5 +350,6 @@ img {
     scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+    
   }
 }

@@ -70,8 +70,8 @@
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  background: var(--emerald-50);
-  color: var(--emerald-700);
+  background: linear-gradient(135deg, #a8c7fa 0%, #d3baf8 45%, #f8bbd0 75%, #ffe0b2 100%);
+  color: #fdfdfd;
 }
 .section-heading h2,
 .section-title-row h2 {
