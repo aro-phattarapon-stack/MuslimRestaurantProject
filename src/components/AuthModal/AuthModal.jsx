@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Eye, EyeOff, LockKeyhole, X } from "lucide-react";
 
 import "./AuthModal.css";
+import { initializeGoogleButton } from "./googleAuth";
 
 export default function AuthModal({ mode, onClose, onAuthenticated, t }) {
   const [view, setView] = useState(mode || "login");
@@ -10,6 +11,59 @@ export default function AuthModal({ mode, onClose, onAuthenticated, t }) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [otpChallenge, setOtpChallenge] = useState(null);
+  const [otpPending, setOtpPending] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const googleButtonRef = useRef(null);
+
+  useEffect(() => {
+    if (!googleButtonRef.current) return undefined;
+    setError("");
+    initializeGoogleButton(
+      googleButtonRef.current,
+      (result) => {
+        setOtpPending(false);
+        if (result.requiresOtp) {
+          setOtpChallenge(result);
+          setError("");
+          return;
+        }
+        onAuthenticated(result.user);
+      },
+      (message) => {
+        setOtpPending(false);
+        setError(message);
+      },
+      () => {
+        setOtpChallenge(null);
+        setOtpPending(true);
+        setError("");
+      },
+    );
+    return undefined;
+  }, [onAuthenticated, view]);
+
+  async function verifyOtp(event) {
+    event.preventDefault();
+    if (otpPending || !otpChallenge) return;
+    if (!/^\d{6}$/.test(otpCode)) {
+      setError("กรุณากรอกรหัส OTP 6 หลัก");
+      return;
+    }
+    try {
+      const response = await fetch("/api/auth/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ challengeId: otpChallenge.challengeId, code: otpCode }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "ยืนยัน OTP ไม่สำเร็จ");
+      onAuthenticated(result.user);
+    } catch (verificationError) {
+      setError(verificationError.message);
+    }
+  }
 
   function submit(event) {
     event.preventDefault();
@@ -49,18 +103,30 @@ export default function AuthModal({ mode, onClose, onAuthenticated, t }) {
         <button className="auth-close" type="button" onClick={onClose} aria-label={t("close")}><X size={20} /></button>
         <div className="auth-mark"><LockKeyhole size={22} /></div>
         <span className="eyebrow">HALAL CHIANG RAI</span>
-        <h1 id="auth-title">{view === "login" ? t("signIn") : t("signUp")}</h1>
-        <p className="auth-subtitle">{t("favoriteRequiresLogin")}</p>
-        <form className="auth-form" onSubmit={submit}>
+        <h1 id="auth-title">{otpChallenge || otpPending ? "ยืนยัน OTP" : view === "login" ? t("signIn") : t("signUp")}</h1>
+        <p className="auth-subtitle">{otpPending ? "กำลังส่งรหัส OTP ไปยังอีเมลของคุณ..." : otpChallenge ? `กรอกรหัสที่ส่งไปยัง ${otpChallenge.email}` : t("favoriteRequiresLogin")}</p>
+        {otpChallenge || otpPending ? (
+          <form className="auth-form" onSubmit={verifyOtp}>
+            <label>รหัส OTP<input value={otpCode} onChange={(event) => setOtpCode(event.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" placeholder="กรอกรหัส 6 หลัก" disabled={otpPending} /></label>
+            {error && <p className="auth-error" role="alert">{error}</p>}
+            <button className="button-primary auth-submit" type="submit" disabled={otpPending}>{otpPending ? "กำลังเตรียมรหัส OTP..." : "ยืนยัน OTP"}</button>
+          </form>
+        ) : (
+          <>
+            <div ref={googleButtonRef} className="google-login-button" aria-label={t("continueWithGoogle")} />
+            <div className="auth-divider"><span>{t("or")}</span></div>
+          </>
+        )}
+        {!otpChallenge && !otpPending && <form className="auth-form" onSubmit={submit}>
           {view === "signup" && <label>{t("name")}<input value={name} onChange={(event) => setName(event.target.value)} placeholder={t("namePlaceholder")} autoComplete="name" /></label>}
           <label>{t("email")}<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder={t("emailPlaceholder")} autoComplete="email" /></label>
           <label>{t("password")}<span className="password-field"><input type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={t("passwordPlaceholder")} autoComplete={view === "login" ? "current-password" : "new-password"} /><button type="button" onClick={() => setShowPassword((current) => !current)} aria-label="แสดงรหัสผ่าน">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></span></label>
           {error && <p className="auth-error" role="alert">{error}</p>}
           <button className="button-primary auth-submit" type="submit">{t("continue")}</button>
-        </form>
-        <button className="auth-switch" type="button" onClick={() => { setView((current) => current === "login" ? "signup" : "login"); setError(""); }}>
+        </form>}
+        {!otpChallenge && !otpPending && <button className="auth-switch" type="button" onClick={() => { setView((current) => current === "login" ? "signup" : "login"); setError(""); }}>
           {view === "login" ? t("switchToSignup") : t("switchToLogin")}
-        </button>
+        </button>}
         <p className="auth-note">{t("authNote")}</p>
       </section>
     </div>
