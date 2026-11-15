@@ -1,18 +1,18 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap");
 
 :root {
-  --emerald-600: #059669;
-  --emerald-700: #047857;
-  --emerald-800: #065f46;
-  --emerald-50: #ecfdf5;
+  --emerald-600: #f87da2;
+  --emerald-700: #f5a7be;
+  --emerald-800: #f8bbcb;
+  --emerald-50: #fbbed0;
   --sand-50: #fffaf1;
   --sand-100: #f5ead8;
   --sand-200: #e6d9c7;
-  --surface-0: #fffdf8;
+  --surface-0: #ffffff;
   --ink-800: #1f2937;
   --ink-600: #4b5563;
   --ink-400: #9ca3af;
-  --pastel-mint: #d9f2e4;
+  --pastel-mint: #fd5b8b;
   --pastel-peach: #f6d8c6;
   --pastel-sky: #dceee8;
   --warning-bg: #fdeeca;

@@ -2,7 +2,6 @@ import {
   House,
   Search,
   Heart,
-  Info,
   UserRound
 } from "lucide-react";
 
@@ -12,7 +11,6 @@ const navItems = [
   { id: "home", key: "home", icon: House },
   { id: "search", key: "search", icon: Search },
   { id: "favorites", key: "favorites", icon: Heart },
-  { id: "about", key: "about", icon: Info },
   { id: "account", key: "account", icon: UserRound }
 ];
 

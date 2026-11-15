@@ -4,7 +4,6 @@ import { Globe2, Leaf, MapPin, UserRound } from "lucide-react";
 import { cuisineTypes, restaurants, zones } from "./features/restaurants/data/restaurants";
 import { recommendRestaurants } from "./features/restaurants/utils/recommend";
 import BottomNav from "./components/BottomNav/BottomNav";
-import AboutPage from "./pages/About/AboutPage";
 import FavoritesPage from "./pages/Favorites/FavoritesPage";
 import HomePage from "./pages/Home/HomePage";
 import RestaurantDetail from "./features/restaurants/components/RestaurantDetail/RestaurantDetail";
@@ -40,7 +39,7 @@ export default function App() {
   const [aiMessage, setAiMessage] = useState("");
 
   const filteredRestaurants = useMemo(() => recommendRestaurants(restaurants, { query, zone, cuisine, maxBudget: budget }), [query, zone, cuisine, budget]);
-  const featuredRestaurants = useMemo(() => recommendRestaurants(restaurants, { zone: "ALL", maxBudget: 2000 }), []);
+  const featuredRestaurants = useMemo(() => recommendRestaurants(restaurants, { zone: "ALL", maxBudget: 2000 }).slice(0, 6), []);
   const favoriteRestaurants = useMemo(() => restaurants.filter((restaurant) => favorites.includes(restaurant.id)), [favorites]);
   const t = (key) => translate(language, key);
 
@@ -129,7 +128,7 @@ export default function App() {
 
       <main className="main-content">
         {activeTab === "home" && (
-          <HomePage t={t} query={query} onQueryChange={setQuery} onSearch={() => setActiveTab("search")} aiPrompt={aiPrompt} onAiPromptChange={setAiPrompt} onAiRecommend={handleAiRecommend} aiMessage={aiMessage} zones={zones} selectedZone={zone} onZoneSelect={(nextZone) => { setZone(nextZone); setActiveTab("search"); }} onShowAll={() => setActiveTab("search")}>
+          <HomePage t={t} aiPrompt={aiPrompt} onAiPromptChange={setAiPrompt} onAiRecommend={handleAiRecommend} aiMessage={aiMessage} zones={zones} selectedZone={zone} onZoneSelect={(nextZone) => { setZone(nextZone); setActiveTab("search"); }} onShowAll={() => setActiveTab("search")}>
             {renderRestaurantList(featuredRestaurants)}
           </HomePage>
         )}
@@ -144,7 +143,6 @@ export default function App() {
           <FavoritesPage restaurants={favoriteRestaurants} favorites={favorites} loggedIn={Boolean(account)} onRequestLogin={openAccount} onToggleFavorite={toggleFavorite} onSelect={setSelectedRestaurant} onReset={resetFilters} t={t} />
         )}
 
-        {activeTab === "about" && <AboutPage t={t} />}
         {activeTab === "account" && account && <AccountPage account={account} favoritesCount={favoriteRestaurants.length} language={language} onLanguageChange={changeLanguage} onSignOut={signOut} t={t} />}
       </main>
 

@@ -74,10 +74,6 @@ export default function RestaurantCard({
           <StatusBadge restaurant={restaurant} />
         </div>
 
-        <p className="restaurant-description">
-          {restaurant.description}
-        </p>
-
         <div className="restaurant-meta">
           <span>
             <MapPin size={15} />
