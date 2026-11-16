@@ -1,0 +1,18 @@
+.restaurant-list { display: flex; flex-direction: column; gap: 10px; }
+.restaurant-card { overflow: hidden; border: 1px solid var(--sand-200); border-radius: var(--radius-lg); background: var(--surface-0); box-shadow: var(--shadow-1); cursor: pointer; transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease; }
+.restaurant-card:hover { transform: translateY(-2px); border-color: var(--emerald-600); box-shadow: var(--shadow-2); }
+.restaurant-card:focus-visible { outline: 2px solid var(--emerald-600); outline-offset: 2px; }
+.restaurant-card-topline { display: flex; align-items: center; gap: 10px; padding: 12px 14px 0; }
+.restaurant-type-icon { display: grid; place-items: center; width: 42px; height: 42px; flex-shrink: 0; border-radius: 12px; background: var(--emerald-50); color: var(--emerald-700); }
+.restaurant-type { overflow: hidden; color: var(--ink-600); font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.favorite-button { display: grid; place-items: center; width: 44px; height: 44px; margin-left: auto; border: 1px solid var(--sand-200); border-radius: var(--radius-full); background: var(--surface-0); color: var(--ink-600); }
+.favorite-button.is-favorite { color: var(--danger); }
+.restaurant-content { padding: 12px 14px 14px; }
+.restaurant-card-heading { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.restaurant-card-heading h3 { margin: 0; font-size: 17px; line-height: 1.4; font-weight: 600; }
+.restaurant-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--ink-600); font-size: 12px; }
+.restaurant-meta span, .opening-hours, .detail-footnote { display: inline-flex; align-items: center; gap: 5px; }
+.restaurant-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--sand-200); }
+.price-range { color: var(--emerald-700); font-weight: 700; font-variant-numeric: tabular-nums; }
+.opening-hours { color: var(--ink-600); font-size: 11px; }
+.card-arrow { margin-left: auto; color: var(--emerald-700); }

@@ -1,0 +1,148 @@
+.auth-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.85);
+}
+
+.auth-modal {
+    position: relative;
+    width: min(100%, 410px);
+    padding: 28px 22px 22px;
+    border: 1px solid var(--sand-200);
+    border-radius: 22px;
+    background: var(--surface-0);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.15);
+}
+
+.auth-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ink-600);
+}
+
+.auth-mark {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    border-radius: 15px;
+    background: var(--emerald-700);
+    color: var(--surface-0);
+}
+
+.auth-modal h1 {
+    margin: 8px 0 4px;
+    font-size: 28px;
+    line-height: 1.25;
+}
+
+.auth-subtitle {
+    margin: 0 0 22px;
+    color: var(--ink-600);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.auth-form {
+    display: grid;
+    gap: 14px;
+}
+
+.auth-form label {
+    display: grid;
+    gap: 6px;
+    color: var(--ink-800);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.auth-form input {
+    width: 100%;
+    min-height: 48px;
+    padding: 11px 12px;
+    border: 1px solid var(--sand-200);
+    border-radius: var(--radius-md);
+    background: var(--sand-50);
+    color: var(--ink-800);
+}
+
+.password-field {
+    position: relative;
+}
+
+.password-field input {
+    padding-right: 46px;
+}
+
+.password-field button {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    background: transparent;
+    color: var(--ink-600);
+}
+
+.auth-submit {
+    width: 100%;
+    margin-top: 4px;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 16px 0;
+    color: var(--ink-400);
+    font-size: 13px;
+    text-align: center;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    flex: 1;
+    height: 1px;
+    background: var(--sand-200);
+    content: "";
+}
+
+.auth-error {
+    margin: 0;
+    color: var(--danger);
+    font-size: 13px;
+}
+
+.auth-switch {
+    width: 100%;
+    min-height: 44px;
+    margin-top: 10px;
+    border: 0;
+    background: transparent;
+    color: var(--emerald-700);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.auth-note {
+    margin: 12px 0 0;
+    color: var(--ink-400);
+    font-size: 11px;
+    text-align: center;
+}
