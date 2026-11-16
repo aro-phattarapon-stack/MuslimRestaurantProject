@@ -10,7 +10,8 @@ export default function FavoritesPage({
   onReset,
   loggedIn,
   onRequestLogin,
-  t
+  t,
+  localize
 }) {
   if (!loggedIn) {
     return (
@@ -38,6 +39,7 @@ export default function FavoritesPage({
         onSelect={onSelect}
         onReset={onReset}
         t={t}
+        localize={localize}
       />
     </section>
   );

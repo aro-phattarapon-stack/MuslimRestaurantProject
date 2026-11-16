@@ -2,11 +2,7 @@ import { Search, X } from "lucide-react";
 
 import "./SearchBar.css";
 
-export default function SearchBar({
-  value,
-  onChange,
-  onSubmit
-}) {
+export default function SearchBar({ value, onChange, onSubmit, t }) {
   return (
     <form
       className="search-bar"
@@ -21,15 +17,15 @@ export default function SearchBar({
         type="search"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-           placeholder="ค้นหาร้าน เมนู หรือพื้นที่..."
-           aria-label="ค้นหาร้านอาหาร เมนู หรือพื้นที่"
+           placeholder={t("searchPlaceholder")}
+           aria-label={t("searchRestaurants")}
       />
 
       {value && (
         <button
           type="button"
           className="icon-button"
-          aria-label="ล้างคำค้นหา"
+          aria-label={t("clearSearch")}
           onClick={() => onChange("")}
         >
           <X size={18} />
@@ -37,7 +33,7 @@ export default function SearchBar({
       )}
 
       <button type="submit" className="search-submit">
-        ค้นหา
+        {t("search")}
       </button>
     </form>
   );

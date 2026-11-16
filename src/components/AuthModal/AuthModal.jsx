@@ -47,7 +47,7 @@ export default function AuthModal({ mode, onClose, onAuthenticated, t }) {
     event.preventDefault();
     if (otpPending || !otpChallenge) return;
     if (!/^\d{6}$/.test(otpCode)) {
-      setError("กรุณากรอกรหัส OTP 6 หลัก");
+      setError(t("errorOtpLength"));
       return;
     }
     try {
@@ -58,7 +58,7 @@ export default function AuthModal({ mode, onClose, onAuthenticated, t }) {
         body: JSON.stringify({ challengeId: otpChallenge.challengeId, code: otpCode }),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "ยืนยัน OTP ไม่สำเร็จ");
+      if (!response.ok) throw new Error(result.error || t("errorOtpVerification"));
       onAuthenticated(result.user);
     } catch (verificationError) {
       setError(verificationError.message);
@@ -69,22 +69,22 @@ export default function AuthModal({ mode, onClose, onAuthenticated, t }) {
     event.preventDefault();
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail || !password || (view === "signup" && !name.trim())) {
-      setError(view === "signup" ? "กรุณากรอกข้อมูลให้ครบถ้วน" : "กรุณากรอกอีเมลและรหัสผ่าน");
+      setError(view === "signup" ? t("errorRequired") : t("errorEmailPasswordRequired"));
       return;
     }
     if (password.length < 6) {
-      setError("รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร");
+      setError(t("errorPasswordLength"));
       return;
     }
 
     const accounts = JSON.parse(localStorage.getItem("halal-accounts") || "[]");
     const existing = accounts.find((account) => account.email === normalizedEmail);
     if (view === "signup" && existing) {
-      setError("อีเมลนี้มีบัญชีอยู่แล้ว");
+      setError(t("errorEmailExists"));
       return;
     }
     if (view === "login" && (!existing || existing.password !== password)) {
-      setError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+      setError(t("errorInvalidCredentials"));
       return;
     }
 
@@ -103,13 +103,13 @@ export default function AuthModal({ mode, onClose, onAuthenticated, t }) {
         <button className="auth-close" type="button" onClick={onClose} aria-label={t("close")}><X size={20} /></button>
         <div className="auth-mark"><LockKeyhole size={22} /></div>
         <span className="eyebrow">HALAL CHIANG RAI</span>
-        <h1 id="auth-title">{otpChallenge || otpPending ? "ยืนยัน OTP" : view === "login" ? t("signIn") : t("signUp")}</h1>
-        <p className="auth-subtitle">{otpPending ? "กำลังส่งรหัส OTP ไปยังอีเมลของคุณ..." : otpChallenge ? `กรอกรหัสที่ส่งไปยัง ${otpChallenge.email}` : t("favoriteRequiresLogin")}</p>
+        <h1 id="auth-title">{otpChallenge || otpPending ? t("verifyOtp") : view === "login" ? t("signIn") : t("signUp")}</h1>
+        <p className="auth-subtitle">{otpPending ? t("otpSending") : otpChallenge ? `${t("otpSent")} ${otpChallenge.email}` : t("favoriteRequiresLogin")}</p>
         {otpChallenge || otpPending ? (
           <form className="auth-form" onSubmit={verifyOtp}>
-            <label>รหัส OTP<input value={otpCode} onChange={(event) => setOtpCode(event.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" placeholder="กรอกรหัส 6 หลัก" disabled={otpPending} /></label>
+            <label>{t("otp")}<input value={otpCode} onChange={(event) => setOtpCode(event.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" placeholder={t("otpPlaceholder")} disabled={otpPending} /></label>
             {error && <p className="auth-error" role="alert">{error}</p>}
-            <button className="button-primary auth-submit" type="submit" disabled={otpPending}>{otpPending ? "กำลังเตรียมรหัส OTP..." : "ยืนยัน OTP"}</button>
+            <button className="button-primary auth-submit" type="submit" disabled={otpPending}>{otpPending ? t("otpPreparing") : t("verifyOtp")}</button>
           </form>
         ) : (
           <>
@@ -120,7 +120,7 @@ export default function AuthModal({ mode, onClose, onAuthenticated, t }) {
         {!otpChallenge && !otpPending && <form className="auth-form" onSubmit={submit}>
           {view === "signup" && <label>{t("name")}<input value={name} onChange={(event) => setName(event.target.value)} placeholder={t("namePlaceholder")} autoComplete="name" /></label>}
           <label>{t("email")}<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder={t("emailPlaceholder")} autoComplete="email" /></label>
-          <label>{t("password")}<span className="password-field"><input type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={t("passwordPlaceholder")} autoComplete={view === "login" ? "current-password" : "new-password"} /><button type="button" onClick={() => setShowPassword((current) => !current)} aria-label="แสดงรหัสผ่าน">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></span></label>
+          <label>{t("password")}<span className="password-field"><input type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={t("passwordPlaceholder")} autoComplete={view === "login" ? "current-password" : "new-password"} /><button type="button" onClick={() => setShowPassword((current) => !current)} aria-label={t("showPassword")}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></span></label>
           {error && <p className="auth-error" role="alert">{error}</p>}
           <button className="button-primary auth-submit" type="submit">{t("continue")}</button>
         </form>}

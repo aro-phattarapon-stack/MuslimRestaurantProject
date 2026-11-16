@@ -17,7 +17,9 @@ export default function RestaurantDetail({
   restaurant,
   isFavorite,
   onToggleFavorite,
-  onClose
+  onClose,
+  t,
+  localize
 }) {
   if (!restaurant) return null;
 
@@ -35,12 +37,12 @@ export default function RestaurantDetail({
         aria-labelledby="detail-title"
       >
         <header className="detail-header">
-          <span className="eyebrow">RESTAURANT DETAILS</span>
+          <span className="eyebrow">{t("restaurantDetails")}</span>
 
           <button
             type="button"
             className="icon-button"
-            aria-label="ปิดรายละเอียด"
+            aria-label={t("closeDetails")}
             onClick={onClose}
           >
             <X size={22} />
@@ -52,8 +54,8 @@ export default function RestaurantDetail({
             <Utensils size={30} />
           </span>
           <div>
-            <span className="detail-category">{restaurant.cuisine}</span>
-            <strong>{restaurant.priceLevel || "ราคาไม่ระบุ"}</strong>
+            <span className="detail-category">{localize(restaurant.cuisine)}</span>
+            <strong>{localize(restaurant.priceLevel)}</strong>
           </div>
         </div>
 
@@ -61,7 +63,7 @@ export default function RestaurantDetail({
           {restaurant.verified && (
             <span className="badge badge-certified">
               <Check size={14} strokeWidth={3} />
-              ยืนยันแล้ว
+              {t("verified")}
             </span>
           )}
 
@@ -76,12 +78,12 @@ export default function RestaurantDetail({
             <span>
               {restaurant.address || restaurant.district} ·{" "}
               {restaurant.zone === "MFU"
-                ? "บริเวณมหาวิทยาลัยแม่ฟ้าหลวง"
+                ? t("districtMfuLong")
                 : restaurant.zone === "CITY"
-                  ? "เขตตัวเมือง"
+                  ? t("districtCity")
                   : restaurant.zone === "MAESAI"
-                    ? "เขตแม่สาย"
-                    : "เชียงราย"}
+                    ? t("districtMaeSai")
+                    : t("provinceChiangRai")}
             </span>
           </div>
 
@@ -91,7 +93,7 @@ export default function RestaurantDetail({
           </div>
 
           <div className="detail-section">
-            <h3>เมนูและราคา</h3>
+            <h3>{t("menuAndPrice")}</h3>
 
             {restaurant.menu?.length ? (
               <ul className="menu-list">
@@ -101,20 +103,20 @@ export default function RestaurantDetail({
                     <strong>
                       {item.price != null
                         ? `฿${item.price}`
-                        : "ไม่ระบุราคา"}
+                        : t("priceUnavailable")}
                     </strong>
                   </li>
                 ))}
               </ul>
             ) : (
               <p className="muted-text">
-                ยังไม่มีข้อมูลเมนู
+                {t("menuUnavailable")}
               </p>
             )}
           </div>
 
           <div className="detail-section">
-            <h3>สิ่งอำนวยความสะดวก</h3>
+            <h3>{t("amenities")}</h3>
 
             <div className="amenity-list">
               {restaurant.amenities?.length ? (
@@ -125,7 +127,7 @@ export default function RestaurantDetail({
                 ))
               ) : (
                 <span className="muted-text">
-                  ยังไม่มีข้อมูลสิ่งอำนวยความสะดวก
+                  {t("amenitiesUnavailable")}
                 </span>
               )}
             </div>
@@ -141,7 +143,7 @@ export default function RestaurantDetail({
                 size={19}
                 fill={isFavorite ? "currentColor" : "none"}
               />
-              {isFavorite ? "บันทึกแล้ว" : "บันทึกร้าน"}
+              {isFavorite ? t("saved") : t("save")}
             </button>
 
             <button
@@ -150,13 +152,13 @@ export default function RestaurantDetail({
               onClick={() => openGoogleMaps(restaurant)}
             >
               <Navigation size={19} />
-              นำทาง
+              {t("navigate")}
             </button>
           </div>
 
           <p className="detail-footnote">
             <Car size={14} />
-            กดนำทางเพื่อค้นหาร้านใน Google Maps
+            {t("openMapsHint")}
           </p>
         </div>
       </section>

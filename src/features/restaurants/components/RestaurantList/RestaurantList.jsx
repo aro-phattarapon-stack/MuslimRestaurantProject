@@ -9,7 +9,9 @@ export default function RestaurantList({
   favorites,
   onToggleFavorite,
   onSelect,
-  onReset
+  onReset,
+  t,
+  localize
 }) {
   if (restaurants.length === 0) {
     return (
@@ -17,10 +19,10 @@ export default function RestaurantList({
         <span className="empty-state-icon">
           <SearchIcon size={28} />
         </span>
-        <h3>ยังไม่พบร้านที่ตรงกับเงื่อนไข</h3>
-        <p>ลองเปลี่ยนคำค้นหา พื้นที่ หรือเพิ่มงบประมาณ</p>
+        <h3>{t("noMatchingRestaurants")}</h3>
+        <p>{t("tryAdjustingFilters")}</p>
         <button className="button-secondary" type="button" onClick={onReset}>
-          ล้างตัวกรอง
+          {t("clearFilters")}
         </button>
       </div>
     );
@@ -35,6 +37,8 @@ export default function RestaurantList({
           isFavorite={favorites.includes(restaurant.id)}
           onToggleFavorite={onToggleFavorite}
           onClick={() => onSelect(restaurant)}
+          t={t}
+          localize={localize}
         />
       ))}
     </div>

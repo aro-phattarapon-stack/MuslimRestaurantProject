@@ -9,12 +9,12 @@ import {
 
 import "./RestaurantCard.css";
 
-function StatusBadge({ restaurant }) {
+function StatusBadge({ restaurant, t }) {
   if (restaurant.verified) {
     return (
       <span className="badge badge-certified">
         <Check size={14} strokeWidth={3} />
-        ยืนยันแล้ว
+        {t("verified")}
       </span>
     );
   }
@@ -26,7 +26,9 @@ export default function RestaurantCard({
   restaurant,
   isFavorite,
   onToggleFavorite,
-  onClick
+  onClick,
+  t,
+  localize
 }) {
   return (
     <article
@@ -34,7 +36,7 @@ export default function RestaurantCard({
       onClick={onClick}
       tabIndex={0}
       role="button"
-      aria-label={`ดูรายละเอียด ${restaurant.name}`}
+      aria-label={`${t("restaurantDetails")}: ${restaurant.name}`}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
@@ -46,14 +48,14 @@ export default function RestaurantCard({
         <span className="restaurant-type-icon" aria-hidden="true">
           <Utensils size={22} />
         </span>
-        <span className="restaurant-type">{restaurant.cuisine}</span>
+        <span className="restaurant-type">{localize(restaurant.cuisine)}</span>
         <button
           type="button"
           className={`favorite-button ${
             isFavorite ? "is-favorite" : ""
           }`}
           aria-label={
-            isFavorite ? "นำออกจากรายการโปรด" : "เพิ่มในรายการโปรด"
+            isFavorite ? t("saved") : t("save")
           }
           aria-pressed={isFavorite}
           onClick={(event) => {
@@ -71,26 +73,26 @@ export default function RestaurantCard({
       <div className="restaurant-content">
         <div className="restaurant-card-heading">
           <h3>{restaurant.name}</h3>
-          <StatusBadge restaurant={restaurant} />
+          <StatusBadge restaurant={restaurant} t={t} />
         </div>
 
         <div className="restaurant-meta">
           <span>
             <MapPin size={15} />
             {restaurant.zone === "MFU"
-              ? "รอบ มฟล."
-              : restaurant.district}
+              ? t("districtMfu")
+              : localize(restaurant.district)}
           </span>
 
           <span>
             <Utensils size={15} />
-            {restaurant.cuisine}
+            {localize(restaurant.cuisine)}
           </span>
         </div>
 
         <div className="restaurant-footer">
           <span className="price-range">
-            {restaurant.priceLevel || "ราคาไม่ระบุ"}
+            {localize(restaurant.priceLevel)}
           </span>
 
           <span className="opening-hours">

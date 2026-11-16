@@ -57,7 +57,7 @@ function AiRecommendForm({
         <button
           type="submit"
           disabled={!aiPrompt.trim() || aiLoading}
-          aria-label="Get AI recommendation"
+          aria-label={t("getAiRecommendation")}
         >
           {aiLoading ? (
             <span className="ai-loading-spinner" />
@@ -133,10 +133,10 @@ export default function HomeView({
       {/* Restaurant Listing */}
       <section className="listing-section">
         <div className="home-section-heading">
-          <h2>ร้านอาหารใกล้คุณ</h2>
+          <h2>{t("nearbyRestaurants")}</h2>
 
           <button type="button" onClick={onShowAll}>
-            ดูทั้งหมด <ArrowRight size={16} />
+            {t("viewAll")} <ArrowRight size={16} />
           </button>
         </div>
 

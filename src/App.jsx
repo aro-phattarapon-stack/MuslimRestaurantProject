@@ -13,7 +13,7 @@ import RestaurantList from "./features/restaurants/components/RestaurantList/Res
 import SearchPage from "./pages/Search/SearchPage";
 import AccountPage from "./pages/Account/AccountPage";
 import AuthModal from "./components/AuthModal/AuthModal";
-import { translate } from "./i18n";
+import { translate, translateValue } from "./i18n";
 
 const DEFAULT_FILTERS = { zone: "ALL", cuisine: "ทั้งหมด", budget: 300 };
 
@@ -36,7 +36,10 @@ export default function App() {
   });
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState("login");
-  const [language, setLanguage] = useState(() => localStorage.getItem("halal-language") || "th");
+  const [language, setLanguage] = useState(() => {
+    const storedLanguage = localStorage.getItem("halal-language");
+    return storedLanguage === "en" ? "en" : "th";
+  });
   const [aiMessage, setAiMessage] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
 
@@ -44,6 +47,7 @@ export default function App() {
   const featuredRestaurants = useMemo(() => recommendRestaurants(restaurants, { zone: "ALL", maxBudget: 2000 }), []);
   const favoriteRestaurants = useMemo(() => restaurants.filter((restaurant) => favorites.includes(restaurant.id)), [favorites]);
   const t = (key) => translate(language, key);
+  const localize = (value) => translateValue(language, value);
 
   function resetFilters() {
     setQuery("");
@@ -90,7 +94,7 @@ export default function App() {
   async function handleAiRecommend(input) {
     const prompt = input.trim();
     if (!prompt) {
-      setAiMessage("ลองบอกความต้องการ เช่น ร้านใกล้ มฟล. งบ 100 บาท");
+      setAiMessage(t("aiPromptHint"));
       return;
     }
 
@@ -105,10 +109,10 @@ export default function App() {
       try {
         recommendation = await response.json();
       } catch {
-        throw new Error("เซิร์ฟเวอร์ AI ส่งข้อมูลกลับมาไม่ถูกต้อง");
+        throw new Error(t("aiInvalidResponse"));
       }
       if (!response.ok) {
-        throw new Error(recommendation.error || "เชื่อมต่อ Gemini ไม่สำเร็จ");
+        throw new Error(recommendation.error || t("aiConnectionError"));
       }
 
       applyRecommendation(recommendation);
@@ -116,8 +120,8 @@ export default function App() {
     } catch (error) {
       const preferences = parseRecommendationPrompt(prompt);
       applyRecommendation(preferences);
-      const reason = error instanceof Error ? error.message : "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ";
-      setAiMessage(`Gemini ใช้งานไม่ได้ (${reason}) จึงใช้ตัวกรองในเครื่องแทน`);
+      const reason = error instanceof Error ? error.message : t("unknownError");
+      setAiMessage(t("aiFallback").replace("{reason}", reason));
     } finally {
       setAiLoading(false);
     }
@@ -132,7 +136,7 @@ export default function App() {
   }
 
   function renderRestaurantList(list) {
-    return <RestaurantList restaurants={list} favorites={favorites} onToggleFavorite={toggleFavorite} onSelect={setSelectedRestaurant} onReset={resetFilters} t={t} />;
+    return <RestaurantList restaurants={list} favorites={favorites} onToggleFavorite={toggleFavorite} onSelect={setSelectedRestaurant} onReset={resetFilters} t={t} localize={localize} />;
   }
 
   return (
@@ -158,7 +162,7 @@ export default function App() {
             className="language-button"
             type="button"
             onClick={() => changeLanguage(language === "th" ? "en" : "th")}
-            aria-label={`${t("language")}: ${language === "th" ? "English" : "ไทย"}`}
+            aria-label={`${t("language")}: ${language === "th" ? t("english") : t("thai")}`}
           >
             <Globe2 size={16} />
             <span>{language === "th" ? "EN" : "TH"}</span>
@@ -186,22 +190,22 @@ export default function App() {
         )}
 
         {activeTab === "search" && (
-          <SearchPage t={t} query={query} onQueryChange={setQuery} onSearch={() => {}} showFilters={showFilters} onToggleFilters={() => setShowFilters((current) => !current)} zone={zone} onZoneChange={setZone} zones={zones} cuisine={cuisine} onCuisineChange={setCuisine} cuisineTypes={cuisineTypes} budget={budget} onBudgetChange={setBudget} onReset={resetFilters} resultCount={filteredRestaurants.length}>
+          <SearchPage t={t} localize={localize} query={query} onQueryChange={setQuery} onSearch={() => {}} showFilters={showFilters} onToggleFilters={() => setShowFilters((current) => !current)} zone={zone} onZoneChange={setZone} zones={zones} cuisine={cuisine} onCuisineChange={setCuisine} cuisineTypes={cuisineTypes} budget={budget} onBudgetChange={setBudget} onReset={resetFilters} resultCount={filteredRestaurants.length}>
             {renderRestaurantList(filteredRestaurants)}
           </SearchPage>
         )}
 
         {activeTab === "favorites" && (
-          <FavoritesPage restaurants={favoriteRestaurants} favorites={favorites} loggedIn={Boolean(account)} onRequestLogin={openAccount} onToggleFavorite={toggleFavorite} onSelect={setSelectedRestaurant} onReset={resetFilters} t={t} />
+          <FavoritesPage restaurants={favoriteRestaurants} favorites={favorites} loggedIn={Boolean(account)} onRequestLogin={openAccount} onToggleFavorite={toggleFavorite} onSelect={setSelectedRestaurant} onReset={resetFilters} t={t} localize={localize} />
         )}
 
         {activeTab === "about" && <AboutPage t={t} />}
         {activeTab === "account" && account && <AccountPage account={account} favoritesCount={favoriteRestaurants.length} language={language} onLanguageChange={changeLanguage} onSignOut={signOut} t={t} />}
       </main>
 
-      <footer className="app-footer"><p>Halal Chiang Rai · Made for discovering Chiang Rai</p><p>ตรวจสอบสถานะฮาลาลกับร้านก่อนใช้บริการ</p></footer>
+      <footer className="app-footer"><p>{t("footerTagline")}</p><p>{t("footerDisclaimer")}</p></footer>
       <BottomNav active={activeTab} onChange={(nextTab) => nextTab === "account" ? openAccount() : setActiveTab(nextTab)} t={t} />
-      {selectedRestaurant && <RestaurantDetail t={t} restaurant={selectedRestaurant} isFavorite={favorites.includes(selectedRestaurant.id)} onToggleFavorite={toggleFavorite} onClose={() => setSelectedRestaurant(null)} />}
+      {selectedRestaurant && <RestaurantDetail t={t} localize={localize} restaurant={selectedRestaurant} isFavorite={favorites.includes(selectedRestaurant.id)} onToggleFavorite={toggleFavorite} onClose={() => setSelectedRestaurant(null)} />}
       {authOpen && <AuthModal mode={authMode} onClose={() => setAuthOpen(false)} onAuthenticated={handleAuthenticated} t={t} />}
     </div>
   );
