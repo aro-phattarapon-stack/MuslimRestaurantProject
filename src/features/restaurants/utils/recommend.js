@@ -1,3 +1,11 @@
+const ZONE_DISTRICTS = {
+  MFU: "รอบ มฟล.",
+  CITY: "ตัวเมืองเชียงราย",
+  MAESAI: "แม่สาย"
+};
+
+const KNOWN_DISTRICTS = new Set(Object.values(ZONE_DISTRICTS));
+
 export function recommendRestaurants(restaurants, preferences = {}) {
   const {
     query = "",
@@ -9,10 +17,16 @@ export function recommendRestaurants(restaurants, preferences = {}) {
   } = preferences;
 
   const normalizedQuery = query.trim().toLowerCase();
+  const selectedDistrict = ZONE_DISTRICTS[zone];
 
   const matches = restaurants
     .filter((restaurant) => {
-      if (zone !== "ALL" && restaurant.zone !== zone) {
+      if (
+        zone !== "ALL" &&
+        (zone === "OTHER"
+          ? KNOWN_DISTRICTS.has(restaurant.district)
+          : restaurant.district !== selectedDistrict)
+      ) {
         return false;
       }
 
@@ -43,7 +57,6 @@ export function recommendRestaurants(restaurants, preferences = {}) {
         const searchableText = [
           restaurant.name,
           restaurant.district,
-          restaurant.zone,
           restaurant.cuisine,
           restaurant.description,
           ...(restaurant.amenities || []),
@@ -69,7 +82,7 @@ export function recommendRestaurants(restaurants, preferences = {}) {
         score += 10;
       }
 
-      if (zone !== "ALL" && restaurant.zone === zone) {
+      if (zone !== "ALL" && restaurant.district === selectedDistrict) {
         score += 5;
       }
 
