@@ -15,12 +15,11 @@
     "express": "latest",
     "google-auth-library": "latest",
     "helmet": "latest",
-    "vite": "latest",
+    "lucide-react": "latest",
+    "nodemailer": "^10.6.0",
+    "pg": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "lucide-react": "latest",
-    "nodemailer": "latest",
-    "pg": "latest"
-  },
-  "devDependencies": {}
+    "vite": "latest"
+  }
 }

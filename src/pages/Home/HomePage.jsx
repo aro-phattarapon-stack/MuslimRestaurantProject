@@ -1,8 +1,27 @@
+import { useState } from "react";
 import { ArrowRight, MapPin, Sparkles } from "lucide-react";
 import SearchBar from "../../components/SearchBar/SearchBar";
 import "./HomePage.css";
 
-export default function HomeView({ query, onQueryChange, onSearch, aiPrompt, onAiPromptChange, onAiRecommend, aiMessage, zones, selectedZone, onZoneSelect, onShowAll, children, t }) {
+function AiRecommendForm({ onAiRecommend, aiMessage, aiLoading, t }) {
+  const [aiPrompt, setAiPrompt] = useState("");
+
+  function submitRecommendation(event) {
+    event.preventDefault();
+    onAiRecommend(aiPrompt);
+  }
+
+  return (
+    <form className="ai-form" onSubmit={submitRecommendation}>
+      <label htmlFor="ai-prompt">{t("aiLabel")}</label>
+      <textarea id="ai-prompt" maxLength={500} value={aiPrompt} onChange={(event) => setAiPrompt(event.target.value)} placeholder="เช่น ร้านใกล้ มฟล. งบไม่เกิน 100 บาท" rows={2} />
+      <button className="button-primary" type="submit" disabled={aiLoading}><Sparkles size={18} /> {aiLoading ? "กำลังค้นหา..." : t("aiButton")}</button>
+      {aiMessage && <p className="form-message" role="status">{aiMessage}</p>}
+    </form>
+  );
+}
+
+export default function HomeView({ query, onQueryChange, onSearch, onAiRecommend, aiMessage, aiLoading, zones, selectedZone, onZoneSelect, onShowAll, children, t }) {
   return (
     <>
       <section className="hero-section">
@@ -12,13 +31,8 @@ export default function HomeView({ query, onQueryChange, onSearch, aiPrompt, onA
         <button className="hero-link" type="button" onClick={onShowAll}>{t("viewAll")} <ArrowRight size={17} /></button>
       </section>
       <section className="ai-section">
-        <div className="section-heading"><div className="ai-icon"><Sparkles size={21} /></div><div><h2>{t("aiTitle")}</h2><p>{t("aiSubtitle")}</p></div></div>
-        <form className="ai-form" onSubmit={onAiRecommend}>
-          <label htmlFor="ai-prompt">{t("aiLabel")}</label>
-          <textarea id="ai-prompt" value={aiPrompt} onChange={(event) => onAiPromptChange(event.target.value)} placeholder="เช่น ร้านใกล้ มฟล. งบไม่เกิน 100 บาท" rows={2} />
-          <button className="button-primary" type="submit"><Sparkles size={18} /> {t("aiButton")}</button>
-          {aiMessage && <p className="form-message" role="status">{aiMessage}</p>}
-        </form>
+        <div className="section-heading"><div className="ai-icon"><Sparkles size={21} /></div><div><h2>{t("aiTitle")}</h2></div></div>
+        <AiRecommendForm onAiRecommend={onAiRecommend} aiMessage={aiMessage} aiLoading={aiLoading} t={t} />
       </section>
       <section className="zone-section">
         <div className="section-title-row"><div><span className="eyebrow">{t("explore")}</span><h2>{t("chooseArea")}</h2></div></div>

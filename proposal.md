@@ -2,7 +2,7 @@
 
 ## Problem Statement
 
-Muslim residents and travelers in Chiang Rai face difficulties when searching for halal restaurants, Muslim-friendly restaurants, and prayer facilities. Information is scattered across general search engines, social media, and recommendations from people they know. As a result, users have to spend time manually checking restaurant names, locations, opening hours, menus, prices, and available facilities.
+Muslim residents and travelers in Chiang Rai face difficulties when searching for halal restaurants, Muslim-friendly restaurants. Information is scattered across general search engines, social media, and recommendations from people they know. As a result, users have to spend time manually checking restaurant names, locations, opening hours, menus, prices, and available facilities.
 
 The bigger challenge is not only finding a place, but also determining the reliability of its halal status. Some restaurants have outdated information, lack evidence of halal certification, or use terms that do not clearly distinguish between certified halal restaurants and Muslim-friendly restaurants. This makes it difficult for users to make informed decisions and may result in arriving at a restaurant that is already closed, does not meet their religious requirements, or does not have the expected prayer facilities.
 
@@ -33,4 +33,4 @@ The common needs of these users are fast and convenient search, verifiable halal
 
 ## Expected Outcome
 
-Muslim users will be able to search for and compare halal restaurants and prayer facilities in Chiang Rai with greater confidence and in less time. At the same time, restaurant owners and system administrators will have a shared platform for maintaining transparent, accurate, and up-to-date information about locations and halal status evidence.
+Muslim users will be able to search for and compare halal restaurants in Chiang Rai with greater confidence and in less time.

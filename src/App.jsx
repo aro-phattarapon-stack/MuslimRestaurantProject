@@ -3,7 +3,7 @@ import { Globe2, MapPin, UserRound } from "lucide-react";
 import logoImg from "../logo-transparent.png";
 
 import { cuisineTypes, restaurants, zones } from "./features/restaurants/data/restaurants";
-import { recommendRestaurants } from "./features/restaurants/utils/recommend";
+import { parseRecommendationPrompt, recommendRestaurants } from "./features/restaurants/utils/recommend";
 import BottomNav from "./components/BottomNav/BottomNav";
 import AboutPage from "./pages/About/AboutPage";
 import FavoritesPage from "./pages/Favorites/FavoritesPage";
@@ -37,8 +37,8 @@ export default function App() {
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState("login");
   const [language, setLanguage] = useState(() => localStorage.getItem("halal-language") || "th");
-  const [aiPrompt, setAiPrompt] = useState("");
   const [aiMessage, setAiMessage] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
 
   const filteredRestaurants = useMemo(() => recommendRestaurants(restaurants, { query, zone, cuisine, maxBudget: budget }), [query, zone, cuisine, budget]);
   const featuredRestaurants = useMemo(() => recommendRestaurants(restaurants, { zone: "ALL", maxBudget: 2000 }), []);
@@ -87,27 +87,48 @@ export default function App() {
     setActiveTab("home");
   }
 
-  function handleAiRecommend(event) {
-    event.preventDefault();
-    const prompt = aiPrompt.trim();
+  async function handleAiRecommend(input) {
+    const prompt = input.trim();
     if (!prompt) {
       setAiMessage("ลองบอกความต้องการ เช่น ร้านใกล้ มฟล. งบ 100 บาท");
       return;
     }
 
-    const lowerPrompt = prompt.toLowerCase();
-    let nextZone = "ALL";
-    if (/มฟล|แม่ฟ้าหลวง|mfu/i.test(lowerPrompt)) nextZone = "MFU";
-    else if (/ตัวเมือง|เมืองเชียงราย|city/i.test(lowerPrompt)) nextZone = "CITY";
-    else if (/แม่สาย/i.test(lowerPrompt)) nextZone = "MAESAI";
+    setAiLoading(true);
+    try {
+      const response = await fetch("/api/recommendations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      let recommendation;
+      try {
+        recommendation = await response.json();
+      } catch {
+        throw new Error("เซิร์ฟเวอร์ AI ส่งข้อมูลกลับมาไม่ถูกต้อง");
+      }
+      if (!response.ok) {
+        throw new Error(recommendation.error || "เชื่อมต่อ Gemini ไม่สำเร็จ");
+      }
 
-    const budgetMatch = prompt.match(/(?:ไม่เกิน|งบ|ประมาณ|under)\s*(\d{2,4})\s*(?:บาท|บ\.?)?/i);
-    const nextBudget = budgetMatch ? Number(budgetMatch[1]) : budget;
+      applyRecommendation(recommendation);
+      setAiMessage(recommendation.message);
+    } catch (error) {
+      const preferences = parseRecommendationPrompt(prompt);
+      applyRecommendation(preferences);
+      const reason = error instanceof Error ? error.message : "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ";
+      setAiMessage(`Gemini ใช้งานไม่ได้ (${reason}) จึงใช้ตัวกรองในเครื่องแทน`);
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
+  function applyRecommendation(preferences) {
     setQuery("");
-    setZone(nextZone);
-    setBudget(Math.min(2000, Math.max(0, nextBudget)));
+    setZone(preferences.zone || DEFAULT_FILTERS.zone);
+    setCuisine(preferences.cuisine || DEFAULT_FILTERS.cuisine);
+    setBudget(Math.min(2000, Math.max(50, preferences.maxBudget ?? DEFAULT_FILTERS.budget)));
     setActiveTab("search");
-    setAiMessage("จัดอันดับร้านจากพื้นที่และงบประมาณที่อ่านได้จากข้อความแล้ว โปรดตรวจสอบรายละเอียดและสถานะฮาลาลก่อนเลือก");
   }
 
   function renderRestaurantList(list) {
@@ -133,7 +154,7 @@ export default function App() {
 
       <main className="main-content">
         {activeTab === "home" && (
-          <HomePage t={t} query={query} onQueryChange={setQuery} onSearch={() => setActiveTab("search")} aiPrompt={aiPrompt} onAiPromptChange={setAiPrompt} onAiRecommend={handleAiRecommend} aiMessage={aiMessage} zones={zones} selectedZone={zone} onZoneSelect={(nextZone) => { setZone(nextZone); setActiveTab("search"); }} onShowAll={() => setActiveTab("search")}>
+          <HomePage t={t} query={query} onQueryChange={setQuery} onSearch={() => setActiveTab("search")} onAiRecommend={handleAiRecommend} aiMessage={aiMessage} aiLoading={aiLoading} zones={zones} selectedZone={zone} onZoneSelect={(nextZone) => { setZone(nextZone); setActiveTab("search"); }} onShowAll={() => setActiveTab("search")}>
             {renderRestaurantList(featuredRestaurants)}
           </HomePage>
         )}

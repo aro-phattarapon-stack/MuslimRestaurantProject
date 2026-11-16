@@ -47,10 +47,9 @@ export const translations = {
     heroTitle: "อิ่มอร่อยอย่างมั่นใจในเชียงราย",
     heroDescription: "ค้นหาร้านอาหารที่เหมาะกับคุณ พร้อมข้อมูลสถานะฮาลาล เมนู และราคา",
     viewAll: "ดูร้านอาหารทั้งหมด",
-    aiTitle: "AI ช่วยเลือกร้านให้คุณ",
-    aiSubtitle: "บอกพื้นที่ งบประมาณ หรืออาหารที่อยากกิน",
+    aiTitle: "ค้นหาร้านตามความต้องการ",
     aiLabel: "วันนี้อยากหาร้านแบบไหน?",
-    aiButton: "แนะนำร้านให้ฉัน",
+    aiButton: "ค้นหาตามที่บอก",
     explore: "สำรวจพื้นที่",
     chooseArea: "เลือกพื้นที่",
     discover: "ค้นพบร้านใหม่",
@@ -66,7 +65,7 @@ export const translations = {
     aboutHeading: "ค้นหาอย่างมั่นใจ",
     aboutText: "โปรเจกต์นี้ช่วยค้นหาร้านอาหารฮาลาลและสถานที่ที่เหมาะกับผู้ใช้มุสลิมในจังหวัดเชียงราย พร้อมแยกสถานะร้านที่ได้รับการยืนยันอย่างชัดเจน",
     recommendation: "ระบบแนะนำร้าน",
-    recommendationText: "เวอร์ชันนี้ใช้กฎการจับคู่คำค้นหา พื้นที่ และงบประมาณ ยังไม่ได้เชื่อมต่อ AI API จริง"
+    recommendationText: "ใช้ Gemini แปลงข้อความเป็นตัวกรองร้าน แล้วค้นหาจากข้อมูลในแอป หากเชื่อมต่อไม่ได้จะใช้ตัวกรองในเครื่องแทน"
   },
   en: {
     home: "Home",
@@ -116,10 +115,9 @@ export const translations = {
     heroTitle: "Eat with confidence in Chiang Rai",
     heroDescription: "Find restaurants that fit you, with halal status, menu, and price information.",
     viewAll: "Browse all restaurants",
-    aiTitle: "Let AI help you choose",
-    aiSubtitle: "Tell us an area, budget, or craving",
+    aiTitle: "Find a restaurant that fits",
     aiLabel: "What kind of place are you looking for?",
-    aiButton: "Recommend for me",
+    aiButton: "Search my preferences",
     explore: "EXPLORE",
     chooseArea: "Choose an area",
     discover: "DISCOVER",
@@ -135,7 +133,7 @@ export const translations = {
     aboutHeading: "Explore with confidence",
     aboutText: "A guide to halal restaurants and Muslim-friendly places in Chiang Rai, with clear verified status information.",
     recommendation: "Restaurant recommendations",
-    recommendationText: "This version matches search terms, areas, and budgets. It is not connected to a live AI API yet."
+    recommendationText: "Gemini turns your request into restaurant filters. If it is unavailable, the app falls back to local filtering."
   }
 };
 
