@@ -1,48 +1,149 @@
 import { useState } from "react";
-import { ArrowRight, MapPin, Sparkles } from "lucide-react";
-import SearchBar from "../../components/SearchBar/SearchBar";
+import { ArrowRight, MapPin, Sparkles, Search } from "lucide-react";
 import "./HomePage.css";
 
-function AiRecommendForm({ onAiRecommend, aiMessage, aiLoading, t }) {
+
+
+function AiRecommendForm({
+  onAiRecommend,
+  aiMessage,
+  aiLoading,
+  t,
+}) {
   const [aiPrompt, setAiPrompt] = useState("");
 
   function submitRecommendation(event) {
     event.preventDefault();
+
+    if (!aiPrompt.trim() || aiLoading) return;
+
     onAiRecommend(aiPrompt);
   }
 
   return (
-    <form className="ai-form" onSubmit={submitRecommendation}>
-      <label htmlFor="ai-prompt">{t("aiLabel")}</label>
-      <textarea id="ai-prompt" maxLength={500} value={aiPrompt} onChange={(event) => setAiPrompt(event.target.value)} placeholder="เช่น ร้านใกล้ มฟล. งบไม่เกิน 100 บาท" rows={2} />
-      <button className="button-primary" type="submit" disabled={aiLoading}><Sparkles size={18} /> {aiLoading ? "กำลังค้นหา..." : t("aiButton")}</button>
-      {aiMessage && <p className="form-message" role="status">{aiMessage}</p>}
-    </form>
+    <section className="ai-recommend-banner">
+
+      {/* AI Banner Header */}
+      <div className="ai-recommend-header">
+        <div className="ai-recommend-icon">
+          <Sparkles size={34} strokeWidth={1.8} />
+        </div>
+
+        <div className="ai-recommend-text">
+          <h2>{t("aiTitle")}</h2>
+          <p>{t("aiSubtitle")}</p>
+        </div>
+      </div>
+
+      {/* AI Prompt Search */}
+      <form
+        className="ai-recommend-search"
+        onSubmit={submitRecommendation}
+      >
+        <Search size={21} />
+
+
+        <input
+          type="text"
+          value={aiPrompt}
+          maxLength={500}
+          onChange={(event) =>
+            setAiPrompt(event.target.value)
+          }
+          placeholder={t("aiPromptPlaceholder")}
+          aria-label={t("aiTitle")}
+        />
+
+        <button
+          type="submit"
+          disabled={!aiPrompt.trim() || aiLoading}
+          aria-label="Get AI recommendation"
+        >
+          {aiLoading ? (
+            <span className="ai-loading-spinner" />
+          ) : (
+            <Search size={22} />
+          )}
+        </button>
+      </form>
+
+      {/* AI Response Message */}
+      {aiMessage && (
+        <p className="ai-recommend-message" role="status">
+          {aiMessage}
+        </p>
+      )}
+
+    </section>
   );
 }
 
-export default function HomeView({ query, onQueryChange, onSearch, onAiRecommend, aiMessage, aiLoading, zones, selectedZone, onZoneSelect, onShowAll, children, t }) {
+
+
+export default function HomeView({
+  onAiRecommend,
+  aiMessage,
+  aiLoading,
+  zones,
+  selectedZone,
+  onZoneSelect,
+  onShowAll,
+  children,
+  t,
+}) {
   return (
-    <>
-      <section className="hero-section">
-        <span className="eyebrow"><Sparkles size={15} /> {t("heroEyebrow")}</span>
-        <h1>{t("heroTitle")}</h1>
-        <p>{t("heroDescription")}</p>
-        <button className="hero-link" type="button" onClick={onShowAll}>{t("viewAll")} <ArrowRight size={17} /></button>
-      </section>
-      <section className="ai-section">
-        <div className="section-heading"><div className="ai-icon"><Sparkles size={21} /></div><div><h2>{t("aiTitle")}</h2></div></div>
-        <AiRecommendForm onAiRecommend={onAiRecommend} aiMessage={aiMessage} aiLoading={aiLoading} t={t} />
-      </section>
+    <main className="home-page">
+
+      {/* AI Recommendation Banner */}
+      <AiRecommendForm
+        onAiRecommend={onAiRecommend}
+        aiMessage={aiMessage}
+        aiLoading={aiLoading}
+        t={t}
+      />
+
+      {/* Explore Areas */}
       <section className="zone-section">
-        <div className="section-title-row"><div><span className="eyebrow">{t("explore")}</span><h2>{t("chooseArea")}</h2></div></div>
-        <div className="zone-grid">{zones.filter((item) => item.value !== "ALL").map((item) => <button key={item.value} className={`zone-card ${selectedZone === item.value ? "selected" : ""}`} type="button" onClick={() => onZoneSelect(item.value)}><MapPin size={20} /><span>{item.label}</span><ArrowRight size={16} /></button>)}</div>
+        <div className="section-title-row">
+          <div>
+            <span className="eyebrow">{t("explore")}</span>
+            <h2>{t("chooseArea")}</h2>
+          </div>
+        </div>
+
+        <div className="zone-grid">
+          {zones
+            .filter((item) => item.value !== "ALL")
+            .map((item) => (
+              <button
+                key={item.value}
+                className={`zone-card ${selectedZone === item.value ? "selected" : ""
+                  }`}
+                type="button"
+                onClick={() => onZoneSelect(item.value)}
+              >
+                <MapPin size={20} />
+                <span>{item.label}</span>
+                <ArrowRight size={16} />
+              </button>
+            ))}
+        </div>
       </section>
+
+      {/* Restaurant Listing */}
       <section className="listing-section">
-        <div className="section-title-row"><div><span className="eyebrow">{t("discover")}</span><h2>{t("restaurants")}</h2></div><button className="text-button" type="button" onClick={onShowAll}>{t("viewAll")} <ArrowRight size={16} /></button></div>
-        <p className="results-support">{t("featuredSupport")}</p>
+        <div className="home-section-heading">
+          <h2>ร้านอาหารใกล้คุณ</h2>
+
+          <button type="button" onClick={onShowAll}>
+            ดูทั้งหมด <ArrowRight size={16} />
+          </button>
+        </div>
+
         {children}
       </section>
-    </>
+
+    </main>
   );
 }
+

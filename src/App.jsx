@@ -138,17 +138,43 @@ export default function App() {
   return (
     <div className="app-shell">
       <header className="top-header">
-        <button className="brand" type="button" onClick={() => setActiveTab("home")} aria-label="Halal Chiang Rai">
-  <span className="brand-icon">
-  <img src={logoImg} alt="Halal Chiang Rai" />
-</span>
-  <span className="brand-copy"><strong>Halal Chiang Rai</strong><small>Discover with confidence</small></span>
-</button>
+        <button
+          className="brand"
+          type="button"
+          onClick={() => setActiveTab("home")}
+          aria-label="Halal Chiang Rai"
+        >
+          <span className="brand-icon">
+            <img src={logoImg} alt="Halal Chiang Rai" />
+          </span>
+          <span className="brand-copy">
+            <strong>Halal Chiang Rai</strong>
+            <small>Discover with confidence</small>
+          </span>
+        </button>
 
         <div className="header-actions">
-          <button className="language-button" type="button" onClick={() => changeLanguage(language === "th" ? "en" : "th")} aria-label={`${t("language")}: ${language === "th" ? "English" : "ไทย"}`}><Globe2 size={16} /><span>{language === "th" ? "EN" : "TH"}</span></button>
-          <button className={`account-button ${account ? "signed-in" : ""}`} type="button" onClick={openAccount} aria-label={account ? t("account") : t("signIn")}><UserRound size={17} />{account ? <span>{account.name.split(" ")[0]}</span> : null}</button>
-          <span className="location-pill"><MapPin size={15} /> {t("location")}</span>
+          <button
+            className="language-button"
+            type="button"
+            onClick={() => changeLanguage(language === "th" ? "en" : "th")}
+            aria-label={`${t("language")}: ${language === "th" ? "English" : "ไทย"}`}
+          >
+            <Globe2 size={16} />
+            <span>{language === "th" ? "EN" : "TH"}</span>
+          </button>
+          <button
+            className={`account-button ${account ? "signed-in" : ""}`}
+            type="button"
+            onClick={openAccount}
+            aria-label={account ? t("account") : t("signIn")}
+          >
+            <UserRound size={17} />
+            {account ? <span>{account.name.split(" ")[0]}</span> : null}
+          </button>
+          <span className="location-pill">
+            <MapPin size={15} /> {t("location")}
+          </span>
         </div>
       </header>
 
