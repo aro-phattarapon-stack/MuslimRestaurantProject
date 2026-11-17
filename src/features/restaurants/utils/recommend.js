@@ -1,5 +1,16 @@
-const normalize = (value) => String(value ?? "").normalize("NFC").toLocaleLowerCase();
+const normalize = (value) => String(value ?? "").normalize("NFC").toLocaleLowerCase().replace(/\s+/g, " ").trim();
 const defaultOpeningHours = "08:00–18:00 น.";
+
+const searchAliases = [
+  [["ก๋วยเตี๋ยว", "ก๋วย", "noodle", "noodles"], "ก๋วยเตี๋ยว"],
+  [["กาแฟ", "coffee", "cafe", "café", "คาเฟ่"], "ร้านกาแฟ"],
+  [["ของหวาน", "dessert", "sweet", "เบเกอรี่", "bakery", "ขนม", "ไอศกรีม", "บิงซู"], "ของหวาน"],
+  [["โรตี", "roti"], "โรตีและของหวาน"],
+  [["ฮาลาล", "halal", "muslim", "มุสลิม", "อิสลาม"], "อาหารฮาลาล"],
+  [["แม่สาย", "mae sai"], "แม่สาย"],
+  [["มฟล", "แม่ฟ้าหลวง", "mfu", "mae fah luang", "mae fa luang"], "รอบ มฟล."],
+  [["ตัวเมือง", "อำเภอเมือง", "เมืองเชียงราย", "mueang chiang rai", "chiang rai city"], "ตัวเมืองเชียงราย"]
+];
 
 function getRestaurantZone(restaurant) {
   const province = normalize(restaurant.province);
@@ -37,6 +48,7 @@ function matchesCuisine(restaurant, cuisine) {
     restaurant.description
   ].join(" "));
   const keywords = {
+    "ก๋วยเตี๋ยว": ["ก๋วยเตี๋ยว", "ก๋วย", "noodle", "noodles"],
     "อาหารตามสั่ง": ["อาหารตามสั่ง", "ตามสั่ง", "จานเดียว", "à la carte"],
     "อาหารไทย": ["อาหารไทย", "ไทย", "thai", "ข้าวซอย", "กะเพรา", "ต้มยำ", "ส้มตำ"],
     "อาหารท้องถิ่น": ["ท้องถิ่น", "อาหารเหนือ", "ล้านนา", "เชียงราย", "ข้าวซอย"],
@@ -70,6 +82,17 @@ function getSearchableText(restaurant) {
   ].join(" "));
 }
 
+function getQueryTerms(query) {
+  const normalizedQuery = normalize(query);
+  const aliases = searchAliases
+    .filter(([terms]) => terms.some((term) => normalizedQuery.includes(normalize(term))))
+    .map(([, label]) => label);
+  const plainTerms = normalizedQuery
+    .split(/[\s,，、/]+/)
+    .filter((term) => term.length > 1);
+  return [...new Set([...aliases, ...plainTerms])];
+}
+
 export function recommendRestaurants(restaurants, preferences = {}) {
   const {
     query = "",
@@ -80,7 +103,7 @@ export function recommendRestaurants(restaurants, preferences = {}) {
     includeUnverified = true
   } = preferences;
 
-  const normalizedQuery = normalize(query.trim());
+  const queryTerms = getQueryTerms(query);
 
   const matches = restaurants
     .filter((restaurant) => {
@@ -92,7 +115,8 @@ export function recommendRestaurants(restaurants, preferences = {}) {
       if (minimumPrice !== undefined && minimumPrice > maxBudget) return false;
       if (!includeUnverified && !restaurant.verified) return false;
       if (openNow) return false;
-      if (normalizedQuery && !getSearchableText(restaurant).includes(normalizedQuery)) return false;
+      const searchableText = getSearchableText(restaurant);
+      if (queryTerms.length && !queryTerms.every((term) => searchableText.includes(normalize(term)))) return false;
 
       return true;
     })
@@ -100,7 +124,10 @@ export function recommendRestaurants(restaurants, preferences = {}) {
       const restaurantZone = getRestaurantZone(restaurant);
       let score = 0;
 
-      if (normalizedQuery && normalize(restaurant.name).includes(normalizedQuery)) score += 10;
+      if (queryTerms.length) {
+        const name = normalize(restaurant.name);
+        score += queryTerms.reduce((total, term) => total + (name.includes(normalize(term)) ? 10 : 0), 0);
+      }
       if (zone !== "ALL" && restaurantZone === zone) score += 5;
       if (cuisine !== "ทั้งหมด" && matchesCuisine(restaurant, cuisine)) score += 5;
       if (restaurant.verified) score += 3;
@@ -140,6 +167,7 @@ export function parseRecommendationPrompt(prompt) {
   if (budget) preferences.maxBudget = Number(budget);
 
   const cuisineAliases = [
+    ["ก๋วยเตี๋ยว", /ก๋วยเตี๋ยว|ก๋วย|noodle|noodles/],
     ["โรตีและของหวาน", /โรตี|roti/],
     ["อาหารอาหรับ", /อาหรับ|arab|middle eastern|egypt|อียิปต์/],
     ["อาหารอินเดีย", /อินเดีย|indian|india|ปากีสถาน|pakistani/],

@@ -4550,6 +4550,7 @@ export const zones = [
 
 export const cuisineTypes = [
   "ทั้งหมด",
+  "ก๋วยเตี๋ยว",
   "อาหารตามสั่ง",
   "อาหารไทย",
   "อาหารท้องถิ่น",

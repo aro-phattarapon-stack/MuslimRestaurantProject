@@ -11,7 +11,7 @@ import pg from "pg";
 const { Pool } = pg;
 const app = express();
 const port = Number(process.env.PORT || 3001);
-const geminiModel = process.env.GEMINI_MODEL || "gemini-4-argon";
+const cloudLlmModel = process.env.CLOUD_LLM_MODEL || "openai/gpt-4.1-mini";
 
 const maxOtpAttempts = 5;
 const isProduction = process.env.NODE_ENV === "production";
@@ -286,14 +286,15 @@ app.post("/api/recommendations", async (request, response) => {
     });
   }
 
-  if (!process.env.GEMINI_API_KEY) {
+  if (!process.env.CLOUD_LLM_API_KEY) {
     return response.status(503).json({
-      error: "Gemini is not configured. Add GEMINI_API_KEY to the server .env file.",
+      error: "Cloud LLM is not configured. Add CLOUD_LLM_API_KEY to the server .env file.",
     });
   }
 
   const cuisineTypes = [
     "ทั้งหมด",
+    "ก๋วยเตี๋ยว",
     "อาหารตามสั่ง",
     "อาหารไทย",
     "อาหารท้องถิ่น",
@@ -305,89 +306,105 @@ app.post("/api/recommendations", async (request, response) => {
     "โรตีและของหวาน",
     "อาหารฮาลาล",
   ];
-  const requestUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(geminiModel)}:generateContent`;
+  const requestUrl = "https://openrouter.ai/api/v1/chat/completions";
 
-  let geminiResponse;
+  let openAiResponse;
   try {
-    geminiResponse = await fetch(requestUrl, {
+    openAiResponse = await fetch(requestUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-goog-api-key": process.env.GEMINI_API_KEY,
+        Authorization: `Bearer ${process.env.CLOUD_LLM_API_KEY}`,
+        "HTTP-Referer": "http://localhost:5173",
+        "X-Title": "Halal Chiang Rai",
       },
       body: JSON.stringify({
-        systemInstruction: {
-          parts: [{
-            text: "คุณเป็นผู้ช่วยค้นหาร้านอาหารฮาลาลในจังหวัดเชียงราย อ่านคำขอภาษาไทยหรืออังกฤษแล้วแปลงเป็นตัวกรองเท่านั้น ห้ามแต่งข้อมูลร้านอาหาร ตอบเป็น JSON ตาม schema ที่กำหนด โดย message เป็นข้อความสั้นภาษาไทย",
-          }],
-        },
-        contents: [{
-          parts: [{
-            text: `แปลงคำขอนี้เป็นตัวกรองร้านอาหาร: ${prompt.trim()}`,
-          }],
-        }],
-        generationConfig: {
-          temperature: 0.2,
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "OBJECT",
-            properties: {
-              zone: {
-                type: "STRING",
-                enum: ["ALL", "MFU", "CITY", "MAESAI", "OTHER"],
+        model: cloudLlmModel,
+        temperature: 0.2,
+        messages: [
+          {
+            role: "system",
+            content: "คุณเป็นตัวแปลงคำขอเป็นตัวกรองร้านอาหารฮาลาลในเชียงรายเท่านั้น ห้ามแต่งข้อมูลร้านอาหาร ห้ามเดาหมวดอาหารจากคำทั่วไป เช่น ร้านอาหาร หรือ halal หากผู้ใช้ระบุอาหาร พื้นที่ หรืองบ ให้สะท้อนตามนั้นอย่างเคร่งครัด หากไม่ระบุให้ใช้ ALL, ทั้งหมด และ 2000 ตามลำดับ หากผู้ใช้ขอก๋วยเตี๋ยวหรือ noodles ต้องเลือก cuisine เป็น ก๋วยเตี๋ยว และห้ามเลือก ร้านกาแฟเว้นแต่ผู้ใช้ขอกาแฟหรือคาเฟ่โดยตรง ตอบเป็น JSON เท่านั้น โดย message เป็นข้อความสั้นภาษาไทย",
+          },
+          {
+            role: "user",
+            content: `แปลงคำขอนี้เป็นตัวกรองร้านอาหาร: ${prompt.trim()}`,
+          },
+        ],
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "restaurant_recommendation",
+            strict: true,
+            schema: {
+              type: "object",
+              properties: {
+                zone: {
+                  type: "string",
+                  enum: ["ALL", "MFU", "CITY", "MAESAI", "OTHER"],
+                },
+                cuisine: {
+                  type: "string",
+                  enum: cuisineTypes,
+                },
+                maxBudget: {
+                  type: "integer",
+                },
+                message: {
+                  type: "string",
+                },
               },
-              cuisine: {
-                type: "STRING",
-                enum: cuisineTypes,
-              },
-              maxBudget: {
-                type: "INTEGER",
-              },
-              message: {
-                type: "STRING",
-              },
+              required: ["zone", "cuisine", "maxBudget", "message"],
+              additionalProperties: false,
             },
-            required: ["zone", "cuisine", "maxBudget", "message"],
           },
         },
+        store: false,
+        max_completion_tokens: 300,
       }),
       signal: AbortSignal.timeout(20_000),
     });
   } catch (error) {
-    console.error("Gemini request failed:", error);
+    console.error("Cloud LLM request failed:", error);
     return response.status(502).json({
-      error: "Could not connect to Gemini. Please try again.",
+      error: "Could not connect to the cloud LLM. Please try again.",
     });
   }
 
   let result;
   try {
-    result = await geminiResponse.json();
+    result = await openAiResponse.json();
   } catch (error) {
-    console.error("Gemini returned a non-JSON response:", error);
+    console.error("Cloud LLM returned a non-JSON response:", error);
     return response.status(502).json({
-      error: "Gemini returned an invalid response. Please try again.",
+      error: "Cloud LLM returned an invalid response. Please try again.",
     });
   }
 
-  if (!geminiResponse.ok) {
-    console.error("Gemini API request was rejected:", result);
+  if (!openAiResponse.ok) {
+    console.error("Cloud LLM request was rejected:", result);
+    if (
+      openAiResponse.status === 429 ||
+      result.error?.code === "insufficient_quota"
+    ) {
+      return response.status(503).json({
+        code: "CLOUD_LLM_QUOTA_EXCEEDED",
+        error: "Cloud LLM quota exceeded",
+      });
+    }
     return response.status(502).json({
-      error: result.error?.message || "Gemini could not process the request.",
+      error: result.error?.message || "Cloud LLM could not process the request.",
     });
   }
 
-  const text = result.candidates?.[0]?.content?.parts
-    ?.map((part) => part.text || "")
-    .join("")
-    .trim();
+  const text = result.choices?.[0]?.message?.content?.trim();
   let recommendation;
   try {
     recommendation = JSON.parse(text);
   } catch (error) {
-    console.error("Gemini returned malformed recommendation JSON:", error);
+    console.error("Cloud LLM returned malformed recommendation JSON:", error);
     return response.status(502).json({
-      error: "Gemini returned an invalid recommendation. Please try again.",
+      error: "Cloud LLM returned an invalid recommendation. Please try again.",
     });
   }
 
@@ -401,9 +418,9 @@ app.post("/api/recommendations", async (request, response) => {
     typeof recommendation.message !== "string" ||
     recommendation.message.length > 160
   ) {
-    console.error("Gemini recommendation did not match the expected schema");
+    console.error("Cloud LLM recommendation did not match the expected schema");
     return response.status(502).json({
-      error: "Gemini returned an invalid recommendation. Please try again.",
+      error: "Cloud LLM returned an invalid recommendation. Please try again.",
     });
   }
 

@@ -99,6 +99,7 @@ export default function App() {
     }
 
     setAiLoading(true);
+    const localPreferences = parseRecommendationPrompt(prompt);
     try {
       const response = await fetch("/api/recommendations", {
         method: "POST",
@@ -109,17 +110,19 @@ export default function App() {
       try {
         recommendation = await response.json();
       } catch {
-        throw new Error(t("aiInvalidResponse"));
+        throw new Error(response.ok ? t("aiInvalidResponse") : t("aiConnectionError"));
       }
       if (!response.ok) {
+        if (recommendation.code === "CLOUD_LLM_QUOTA_EXCEEDED") {
+          throw new Error(t("aiQuotaExceeded"));
+        }
         throw new Error(recommendation.error || t("aiConnectionError"));
       }
 
-      applyRecommendation(recommendation);
+      applyRecommendation({ ...recommendation, ...localPreferences });
       setAiMessage(recommendation.message);
     } catch (error) {
-      const preferences = parseRecommendationPrompt(prompt);
-      applyRecommendation(preferences);
+      applyRecommendation(localPreferences);
       const reason = error instanceof Error ? error.message : t("unknownError");
       setAiMessage(t("aiFallback").replace("{reason}", reason));
     } finally {

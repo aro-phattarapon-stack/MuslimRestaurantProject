@@ -101,6 +101,7 @@ export const translations = {
     errorEmailExists: "อีเมลนี้มีบัญชีอยู่แล้ว",
     errorInvalidCredentials: "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
     cuisineAll: "ทั้งหมด",
+    cuisineNoodles: "ก๋วยเตี๋ยว",
     cuisineMadeToOrder: "อาหารตามสั่ง",
     cuisineThai: "อาหารไทย",
     cuisineLocal: "อาหารท้องถิ่น",
@@ -120,9 +121,10 @@ export const translations = {
     footerDisclaimer: "ตรวจสอบสถานะฮาลาลกับร้านก่อนใช้บริการ",
     aiPromptHint: "ลองบอกความต้องการ เช่น ร้านใกล้ มฟล. งบ 100 บาท",
     aiInvalidResponse: "เซิร์ฟเวอร์ AI ส่งข้อมูลกลับมาไม่ถูกต้อง",
-    aiConnectionError: "เชื่อมต่อ Gemini ไม่สำเร็จ",
+    aiConnectionError: "เชื่อมต่อเซิร์ฟเวอร์ AI ไม่สำเร็จ กรุณาเปิด backend ด้วยคำสั่ง npm run server",
+    aiQuotaExceeded: "โควตา Cloud LLM หมดชั่วคราว",
     unknownError: "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ",
-    aiFallback: "Gemini ใช้งานไม่ได้ ({reason}) จึงใช้ตัวกรองในเครื่องแทน",
+    aiFallback: "{reason} จึงใช้ตัวกรองในเครื่องแทน",
     openMapsHint: "กดนำทางเพื่อค้นหาร้านใน Google Maps",
     getAiRecommendation: "รับคำแนะนำจาก AI"
   },
@@ -228,6 +230,7 @@ export const translations = {
     errorEmailExists: "This email already has an account",
     errorInvalidCredentials: "Incorrect email or password",
     cuisineAll: "All",
+    cuisineNoodles: "Noodles",
     cuisineMadeToOrder: "Made-to-order",
     cuisineThai: "Thai food",
     cuisineLocal: "Local food",
@@ -247,9 +250,10 @@ export const translations = {
     footerDisclaimer: "Please confirm halal status with the restaurant before visiting",
     aiPromptHint: "Try telling us what you want, such as near MFU or under 100 baht",
     aiInvalidResponse: "The AI server returned an invalid response",
-    aiConnectionError: "Could not connect to Gemini",
+    aiConnectionError: "Could not connect to the AI server. Start the backend with npm run server",
+    aiQuotaExceeded: "Cloud LLM quota is temporarily exhausted",
     unknownError: "An unknown error occurred",
-    aiFallback: "Gemini is unavailable ({reason}), so local filters were used instead",
+    aiFallback: "{reason}, so local filters were used instead",
     openMapsHint: "Tap directions to find this restaurant in Google Maps",
     getAiRecommendation: "Get an AI recommendation"
   }
@@ -261,6 +265,7 @@ export function translate(language, key) {
 
 const valueKeys = {
   "ทั้งหมด": "cuisineAll",
+  "ก๋วยเตี๋ยว": "cuisineNoodles",
   "อาหารตามสั่ง": "cuisineMadeToOrder",
   "อาหารไทย": "cuisineThai",
   "อาหารท้องถิ่น": "cuisineLocal",
