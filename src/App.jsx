@@ -25,6 +25,7 @@ export default function App() {
   const [budget, setBudget] = useState(DEFAULT_FILTERS.budget);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+  
   const [account, setAccount] = useState(() => {
     try { return JSON.parse(localStorage.getItem("halal-session")) || null; } catch { return null; }
   });
@@ -34,26 +35,65 @@ export default function App() {
       return session ? JSON.parse(localStorage.getItem(`halal-favorites-${session.email}`) || "[]") : [];
     } catch { return []; }
   });
+  
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState("login");
   const [language, setLanguage] = useState(() => {
     const storedLanguage = localStorage.getItem("halal-language");
     return storedLanguage === "en" ? "en" : "th";
   });
+  
+  // <-- 1. เพิ่ม aiPrompt และ extraPreferences เพื่อซิงค์ข้อมูล AI ข้ามหน้า
+  const [aiPrompt, setAiPrompt] = useState("");
   const [aiMessage, setAiMessage] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+  const [extraPreferences, setExtraPreferences] = useState({});
 
-  const filteredRestaurants = useMemo(() => recommendRestaurants(restaurants, { query, zone, cuisine, maxBudget: budget }), [query, zone, cuisine, budget]);
-  const featuredRestaurants = useMemo(() => recommendRestaurants(restaurants, { zone: "ALL", maxBudget: 2000 }), []);
-  const favoriteRestaurants = useMemo(() => restaurants.filter((restaurant) => favorites.includes(restaurant.id)), [favorites]);
+  // <-- 2. ส่ง extraPreferences เข้าไปกรองร้านด้วย
+  const filteredRestaurants = useMemo(
+    () =>
+      recommendRestaurants(restaurants, {
+        query,
+        zone,
+        cuisine,
+        maxBudget: budget,
+        ...extraPreferences,
+      }),
+    [query, zone, cuisine, budget, extraPreferences]
+  );
+
+  const featuredRestaurants = useMemo(
+    () => recommendRestaurants(restaurants, { zone: "ALL", maxBudget: 2000 }),
+    []
+  );
+  const favoriteRestaurants = useMemo(
+    () => restaurants.filter((restaurant) => favorites.includes(restaurant.id)),
+    [favorites]
+  );
+
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (zone !== DEFAULT_FILTERS.zone) count++;
+    if (cuisine !== DEFAULT_FILTERS.cuisine) count++;
+    if (budget !== DEFAULT_FILTERS.budget) count++;
+    if (extraPreferences.openNow) count++;
+    if (extraPreferences.halalOnly) count++;
+    if (extraPreferences.requiredAmenities?.length) count++;
+    return count;
+  }, [zone, cuisine, budget, extraPreferences]);
+
   const t = (key) => translate(language, key);
   const localize = (value) => translateValue(language, value);
 
+  // <-- 3. ล้างค่า aiPrompt และ extraPreferences เมื่อกด Reset
   function resetFilters() {
     setQuery("");
     setZone(DEFAULT_FILTERS.zone);
     setCuisine(DEFAULT_FILTERS.cuisine);
     setBudget(DEFAULT_FILTERS.budget);
+    setExtraPreferences({});
+    setAiPrompt("");
+    setAiMessage("");
   }
 
   function toggleFavorite(id) {
@@ -62,7 +102,9 @@ export default function App() {
       setAuthOpen(true);
       return;
     }
-    const nextFavorites = favorites.includes(id) ? favorites.filter((item) => item !== id) : [...favorites, id];
+    const nextFavorites = favorites.includes(id)
+      ? favorites.filter((item) => item !== id)
+      : [...favorites, id];
     setFavorites(nextFavorites);
     localStorage.setItem(`halal-favorites-${account.email}`, JSON.stringify(nextFavorites));
   }
@@ -91,84 +133,55 @@ export default function App() {
     setActiveTab("home");
   }
 
-  // async function handleAiRecommend(input) {
-  //   const prompt = input.trim();
-  //   if (!prompt) {
-  //     setAiMessage(t("aiPromptHint"));
-  //     return;
-  //   }
-
-  //   setAiLoading(true);
-  //   try {
-  //     const response = await fetch("/api/recommendations", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ prompt }),
-  //     });
-  //     let recommendation;
-  //     try {
-  //       recommendation = await response.json();
-  //     } catch {
-  //       throw new Error(t("aiInvalidResponse"));
-  //     }
-  //     if (!response.ok) {
-  //       throw new Error(recommendation.error || t("aiConnectionError"));
-  //     }
-
-  //     const appliedPreferences = applyRecommendation(recommendation);
-  //     setAiMessage(
-  //       appliedPreferences.relaxed
-  //         ? `${recommendation.message} ${t("aiNoExactMatch")}`
-  //         : recommendation.message
-  //     );
-  //   } catch (error) {
-  //     const preferences = parseRecommendationPrompt(prompt);
-  //     applyRecommendation(preferences);
-  //     const reason = error instanceof Error ? error.message : t("unknownError");
-  //     setAiMessage(t("aiFallback").replace("{reason}", reason));
-  //   } finally {
-  //     setAiLoading(false);
-  //   }
-  // }
-
-
+  // <-- 4. อัปเดต handleAiRecommend ให้ซิงค์ aiPrompt ทั้ง 2 หน้า
   async function handleAiRecommend(input) {
-    const prompt = input.trim();
+    const prompt = (input ?? aiPrompt).trim();
+    setAiPrompt(prompt); // เก็บข้อความที่ผู้ใช้ถามไว้ให้เห็นตรงกันทั้งหน้า Home และ Search
 
     if (!prompt) {
       setAiMessage(t("aiPromptHint"));
       return;
     }
 
-    // ตรวจสอบก่อนว่าเป็นการค้นหาชื่อร้านโดยตรงหรือไม่
-    const directSearch = recommendRestaurants(restaurants, {
-      query: prompt,
-      zone: "ALL",
-      cuisine: "ทั้งหมด",
-      maxBudget: 2000
-    });
+    // ตรวจสอบเฉพาะกรณีที่พิมพ์ "ชื่อร้านตรงๆ" และเป็นคำสั้นๆ
+    const isShortQuery = prompt.split(/\s+/).length <= 3 && prompt.length <= 25;
+    if (isShortQuery) {
+      const normalizedPrompt = prompt.toLowerCase();
+      const nameMatched = restaurants.filter((r) =>
+        [r.name, r.nameTh, r.nameEn].filter(Boolean).some((n) => n.toLowerCase().includes(normalizedPrompt))
+      );
 
-    // ถ้าพบร้านจากข้อความที่พิมพ์ ให้แสดงผลค้นหาโดยตรง
-    if (directSearch.length > 0) {
-      setQuery(prompt);
-      setZone("ALL");
-      setCuisine("ทั้งหมด");
-      setBudget(2000);
-      setAiMessage("");
-      setActiveTab("search");
-      return;
+      if (nameMatched.length > 0) {
+        setQuery(prompt);
+        setZone("ALL");
+        setCuisine("ทั้งหมด");
+        setBudget(2000);
+        setExtraPreferences({});
+        setAiMessage("");
+        setActiveTab("search");
+        return;
+      }
     }
 
     setAiLoading(true);
+<<<<<<< HEAD
+=======
+    setAiMessage("");
+
+>>>>>>> 4e1c4aa (edit searchbar)
     try {
       const response = await fetch("/api/recommendations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({
+          prompt,
+          language,
+          availableZones: zones.map((z) => z.value),
+          availableCuisines: cuisineTypes,
+        }),
       });
 
       let recommendation;
-
       try {
         recommendation = await response.json();
       } catch {
@@ -182,11 +195,25 @@ export default function App() {
         throw new Error(recommendation.error || t("aiConnectionError"));
       }
 
+<<<<<<< HEAD
       applyRecommendation(recommendation);
       setAiMessage(recommendation.message);
     } catch (error) {
       const preferences = parseRecommendationPrompt(prompt);
       applyRecommendation(preferences);
+=======
+      const appliedPreferences = applyRecommendation(recommendation);
+
+      setAiMessage(
+        appliedPreferences.relaxed
+          ? `${recommendation.message} ${t("aiNoExactMatch")}`
+          : recommendation.message
+      );
+    } catch (error) {
+      const preferences = parseRecommendationPrompt(prompt);
+      applyRecommendation(preferences);
+
+>>>>>>> 4e1c4aa (edit searchbar)
       const reason = error instanceof Error ? error.message : t("unknownError");
       setAiMessage(t("aiFallback").replace("{reason}", reason));
     } finally {
@@ -194,76 +221,71 @@ export default function App() {
     }
   }
 
+  // <-- 5. อัปเดต applyRecommendation ให้รองรับ openNow, halalOnly, requiredAmenities
   function applyRecommendation(preferences) {
     const candidatePreferences = {
-      zone: preferences.zone || DEFAULT_FILTERS.zone,
-      cuisine: preferences.cuisine || DEFAULT_FILTERS.cuisine,
-      maxBudget: Math.min(
-        2000,
-        Math.max(50, preferences.maxBudget ?? DEFAULT_FILTERS.budget)
-      )
+      query: preferences.keyword || "",
+      zone: zones.some((z) => z.value === preferences.zone) ? preferences.zone : DEFAULT_FILTERS.zone,
+      cuisine: cuisineTypes.includes(preferences.cuisine) ? preferences.cuisine : DEFAULT_FILTERS.cuisine,
+      maxBudget: Math.min(2000, Math.max(50, Number(preferences.maxBudget) || DEFAULT_FILTERS.budget)),
+      openNow: Boolean(preferences.openNow),
+      halalOnly: Boolean(preferences.halalOnly),
+      requiredAmenities: preferences.requiredAmenities || [],
     };
 
-    const fallbackPreferences = [
+    const fallbackChain = [
       candidatePreferences,
-      { ...candidatePreferences, maxBudget: 2000 },
-      {
-        ...candidatePreferences,
-        zone: DEFAULT_FILTERS.zone,
-        maxBudget: 2000
-      },
-      {
-        zone: DEFAULT_FILTERS.zone,
-        cuisine: DEFAULT_FILTERS.cuisine,
-        maxBudget: 2000
-      }
-    ].find((candidate) =>
-      recommendRestaurants(restaurants, candidate).length > 0
-    );
+      { ...candidatePreferences, openNow: false, requiredAmenities: [] },
+      { ...candidatePreferences, query: "", openNow: false, requiredAmenities: [] },
+      { ...candidatePreferences, query: "", maxBudget: 2000, openNow: false, requiredAmenities: [] },
+      { ...candidatePreferences, query: "", zone: DEFAULT_FILTERS.zone, maxBudget: 2000, openNow: false, requiredAmenities: [] },
+      { query: "", zone: DEFAULT_FILTERS.zone, cuisine: DEFAULT_FILTERS.cuisine, maxBudget: 2000 },
+    ];
 
-    const appliedPreferences = fallbackPreferences || candidatePreferences;
+    const appliedPreferences =
+      fallbackChain.find((candidate) => recommendRestaurants(restaurants, candidate).length > 0) ||
+      candidatePreferences;
 
-    // ล้าง query เฉพาะการค้นหาแบบ AI Recommendation
-    setQuery("");
+    setQuery(appliedPreferences.query);
     setZone(appliedPreferences.zone);
     setCuisine(appliedPreferences.cuisine);
     setBudget(appliedPreferences.maxBudget);
+    setExtraPreferences({
+      openNow: appliedPreferences.openNow,
+      halalOnly: appliedPreferences.halalOnly,
+      requiredAmenities: appliedPreferences.requiredAmenities,
+    });
     setActiveTab("search");
 
     return {
       ...appliedPreferences,
-      relaxed: appliedPreferences !== candidatePreferences
-    };
-  }
-
-  function applyRecommendation(preferences) {
-    const candidatePreferences = {
-      zone: preferences.zone || DEFAULT_FILTERS.zone,
-      cuisine: preferences.cuisine || DEFAULT_FILTERS.cuisine,
-      maxBudget: Math.min(2000, Math.max(50, preferences.maxBudget ?? DEFAULT_FILTERS.budget))
-    };
-    const fallbackPreferences = [
-      candidatePreferences,
-      { ...candidatePreferences, maxBudget: 2000 },
-      { ...candidatePreferences, zone: DEFAULT_FILTERS.zone, maxBudget: 2000 },
-      { zone: DEFAULT_FILTERS.zone, cuisine: DEFAULT_FILTERS.cuisine, maxBudget: 2000 }
-    ].find((candidate) => recommendRestaurants(restaurants, candidate).length > 0);
-    const appliedPreferences = fallbackPreferences || candidatePreferences;
-
-    setQuery("");
-    setZone(appliedPreferences.zone);
-    setCuisine(appliedPreferences.cuisine);
-    setBudget(appliedPreferences.maxBudget);
-    setActiveTab("search");
-    return {
-      ...appliedPreferences,
-      relaxed: appliedPreferences !== candidatePreferences
+      relaxed: appliedPreferences !== candidatePreferences,
     };
   }
 
   function renderRestaurantList(list) {
-    return <RestaurantList restaurants={list} favorites={favorites} onToggleFavorite={toggleFavorite} onSelect={setSelectedRestaurant} onReset={resetFilters} t={t} localize={localize} />;
+    return (
+      <RestaurantList
+        restaurants={list}
+        favorites={favorites}
+        onToggleFavorite={toggleFavorite}
+        onSelect={setSelectedRestaurant}
+        onReset={resetFilters}
+        t={t}
+        localize={localize}
+      />
+    );
   }
+
+  // <-- 6. รวม Props ของ AI ไว้ชุดเดียว เพื่อส่งให้ทั้ง HomePage และ SearchPage ซิงค์กัน
+  const sharedAiProps = {
+    aiPrompt,
+    onAiPromptChange: setAiPrompt,
+    onAiRecommend: handleAiRecommend,
+    aiMessage,
+    aiLoading,
+    onClearAi: resetFilters,
+  };
 
   return (
     <div className="app-shell">
@@ -310,29 +332,111 @@ export default function App() {
 
       <main className="main-content">
         {activeTab === "home" && (
-          <HomePage t={t} query={query} onQueryChange={setQuery} onSearch={() => setActiveTab("search")} onAiRecommend={handleAiRecommend} aiMessage={aiMessage} aiLoading={aiLoading} zones={zones} selectedZone={zone} onZoneSelect={(nextZone) => { setZone(nextZone); setActiveTab("search"); }} onShowAll={() => setActiveTab("search")}>
+          <HomePage
+            t={t}
+            query={query}
+            onQueryChange={setQuery}
+            onSearch={() => setActiveTab("search")}
+            {...sharedAiProps} // <-- ส่ง AI Props ซิงค์หน้า Home
+            zones={zones}
+            selectedZone={zone}
+            onZoneSelect={(nextZone) => {
+              setZone(nextZone);
+              setAiMessage("");
+              setActiveTab("search");
+            }}
+            onShowAll={() => {
+              resetFilters();
+              setActiveTab("search");
+            }}
+          >
             {renderRestaurantList(featuredRestaurants)}
           </HomePage>
         )}
 
         {activeTab === "search" && (
-          <SearchPage t={t} localize={localize} query={query} onQueryChange={setQuery} onSearch={() => { }} showFilters={showFilters} onToggleFilters={() => setShowFilters((current) => !current)} zone={zone} onZoneChange={setZone} zones={zones} cuisine={cuisine} onCuisineChange={setCuisine} cuisineTypes={cuisineTypes} budget={budget} onBudgetChange={setBudget} onReset={resetFilters} resultCount={filteredRestaurants.length}>
+          <SearchPage
+            t={t}
+            localize={localize}
+            query={query}
+            onQueryChange={setQuery}
+            onSearch={() => {}} // ช่อง SearchBar ปกติใช้กรองชื่อร้านแบบ Real-time ผ่าน query
+            showFilters={showFilters}
+            onToggleFilters={() => setShowFilters((current) => !current)}
+            zone={zone}
+            onZoneChange={(val) => { setZone(val); setAiMessage(""); }}
+            zones={zones}
+            cuisine={cuisine}
+            onCuisineChange={(val) => { setCuisine(val); setAiMessage(""); }}
+            cuisineTypes={cuisineTypes}
+            budget={budget}
+            onBudgetChange={(val) => { setBudget(val); setAiMessage(""); }}
+            onReset={resetFilters}
+            resultCount={filteredRestaurants.length}
+            activeFilterCount={activeFilterCount}
+            {...sharedAiProps} // <-- ส่ง AI Props ชุดเดียวกันซิงค์หน้า Search
+          >
             {renderRestaurantList(filteredRestaurants)}
           </SearchPage>
         )}
 
         {activeTab === "favorites" && (
-          <FavoritesPage restaurants={favoriteRestaurants} favorites={favorites} loggedIn={Boolean(account)} onRequestLogin={openAccount} onToggleFavorite={toggleFavorite} onSelect={setSelectedRestaurant} onReset={resetFilters} t={t} localize={localize} />
+          <FavoritesPage
+            restaurants={favoriteRestaurants}
+            favorites={favorites}
+            loggedIn={Boolean(account)}
+            onRequestLogin={openAccount}
+            onToggleFavorite={toggleFavorite}
+            onSelect={setSelectedRestaurant}
+            onReset={resetFilters}
+            t={t}
+            localize={localize}
+          />
         )}
 
         {activeTab === "about" && <AboutPage t={t} />}
-        {activeTab === "account" && account && <AccountPage account={account} favoritesCount={favoriteRestaurants.length} language={language} onLanguageChange={changeLanguage} onSignOut={signOut} t={t} />}
+        {activeTab === "account" && account && (
+          <AccountPage
+            account={account}
+            favoritesCount={favoriteRestaurants.length}
+            language={language}
+            onLanguageChange={changeLanguage}
+            onSignOut={signOut}
+            t={t}
+          />
+        )}
       </main>
 
-      <footer className="app-footer"><p>{t("footerTagline")}</p><p>{t("footerDisclaimer")}</p></footer>
-      <BottomNav active={activeTab} onChange={(nextTab) => nextTab === "account" ? openAccount() : setActiveTab(nextTab)} t={t} />
-      {selectedRestaurant && <RestaurantDetail t={t} localize={localize} restaurant={selectedRestaurant} isFavorite={favorites.includes(selectedRestaurant.id)} onToggleFavorite={toggleFavorite} onClose={() => setSelectedRestaurant(null)} />}
-      {authOpen && <AuthModal mode={authMode} onClose={() => setAuthOpen(false)} onAuthenticated={handleAuthenticated} t={t} />}
+      <footer className="app-footer">
+        <p>{t("footerTagline")}</p>
+        <p>{t("footerDisclaimer")}</p>
+      </footer>
+      
+      <BottomNav
+        active={activeTab}
+        onChange={(nextTab) => (nextTab === "account" ? openAccount() : setActiveTab(nextTab))}
+        t={t}
+      />
+      
+      {selectedRestaurant && (
+        <RestaurantDetail
+          t={t}
+          localize={localize}
+          restaurant={selectedRestaurant}
+          isFavorite={favorites.includes(selectedRestaurant.id)}
+          onToggleFavorite={toggleFavorite}
+          onClose={() => setSelectedRestaurant(null)}
+        />
+      )}
+      
+      {authOpen && (
+        <AuthModal
+          mode={authMode}
+          onClose={() => setAuthOpen(false)}
+          onAuthenticated={handleAuthenticated}
+          t={t}
+        />
+      )}
     </div>
   );
 }
