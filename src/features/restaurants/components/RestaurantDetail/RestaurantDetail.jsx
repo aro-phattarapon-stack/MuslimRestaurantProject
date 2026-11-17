@@ -115,24 +115,6 @@ export default function RestaurantDetail({
             )}
           </div>
 
-          <div className="detail-section">
-            <h3>{t("amenities")}</h3>
-
-            <div className="amenity-list">
-              {restaurant.amenities?.length ? (
-                restaurant.amenities.map((amenity) => (
-                  <span className="amenity-chip" key={amenity}>
-                    {amenity}
-                  </span>
-                ))
-              ) : (
-                <span className="muted-text">
-                  {t("amenitiesUnavailable")}
-                </span>
-              )}
-            </div>
-          </div>
-
           <div className="detail-actions">
             <button
               type="button"

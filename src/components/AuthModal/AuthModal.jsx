@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Eye, EyeOff, LockKeyhole, X } from "lucide-react";
 
 import "./AuthModal.css";
-import { initializeGoogleButton } from "./googleAuth";
 
 export default function AuthModal({ mode, onClose, onAuthenticated, t }) {
   const [view, setView] = useState(mode || "login");
@@ -14,35 +13,6 @@ export default function AuthModal({ mode, onClose, onAuthenticated, t }) {
   const [otpChallenge, setOtpChallenge] = useState(null);
   const [otpPending, setOtpPending] = useState(false);
   const [otpCode, setOtpCode] = useState("");
-  const googleButtonRef = useRef(null);
-
-  useEffect(() => {
-    if (!googleButtonRef.current) return undefined;
-    setError("");
-    initializeGoogleButton(
-      googleButtonRef.current,
-      (result) => {
-        setOtpPending(false);
-        if (result.requiresOtp) {
-          setOtpChallenge(result);
-          setError("");
-          return;
-        }
-        onAuthenticated(result.user);
-      },
-      (message) => {
-        setOtpPending(false);
-        setError(message);
-      },
-      () => {
-        setOtpChallenge(null);
-        setOtpPending(true);
-        setError("");
-      },
-    );
-    return undefined;
-  }, [onAuthenticated, view]);
-
   async function verifyOtp(event) {
     event.preventDefault();
     if (otpPending || !otpChallenge) return;
@@ -111,12 +81,7 @@ export default function AuthModal({ mode, onClose, onAuthenticated, t }) {
             {error && <p className="auth-error" role="alert">{error}</p>}
             <button className="button-primary auth-submit" type="submit" disabled={otpPending}>{otpPending ? t("otpPreparing") : t("verifyOtp")}</button>
           </form>
-        ) : (
-          <>
-            <div ref={googleButtonRef} className="google-login-button" aria-label={t("continueWithGoogle")} />
-            <div className="auth-divider"><span>{t("or")}</span></div>
-          </>
-        )}
+        ) : null}
         {!otpChallenge && !otpPending && <form className="auth-form" onSubmit={submit}>
           {view === "signup" && <label>{t("name")}<input value={name} onChange={(event) => setName(event.target.value)} placeholder={t("namePlaceholder")} autoComplete="name" /></label>}
           <label>{t("email")}<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder={t("emailPlaceholder")} autoComplete="email" /></label>

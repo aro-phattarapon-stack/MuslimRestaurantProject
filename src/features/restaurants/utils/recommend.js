@@ -1,4 +1,5 @@
 const normalize = (value) => String(value ?? "").normalize("NFC").toLocaleLowerCase();
+const defaultOpeningHours = "08:00–18:00 น.";
 
 function getRestaurantZone(restaurant) {
   const province = normalize(restaurant.province);
@@ -65,7 +66,6 @@ function getSearchableText(restaurant) {
     restaurant.description,
     restaurant.priceRange,
     restaurant.halalStatus,
-    ...(Array.isArray(restaurant.amenities) ? restaurant.amenities : []),
     ...(Array.isArray(restaurant.menu) ? restaurant.menu.map((item) => item?.name) : [])
   ].join(" "));
 }
@@ -111,7 +111,7 @@ export function recommendRestaurants(restaurants, preferences = {}) {
         district: restaurant.district || restaurant.area || restaurant.province || "ไม่ระบุพื้นที่",
         cuisine: restaurant.cuisine || "ไม่ระบุประเภท",
         priceLevel: restaurant.priceLevel || restaurant.priceRange || "ราคาไม่ระบุ",
-        openingHours: restaurant.openingHours || restaurant.openingNote || "ไม่ระบุเวลา",
+        openingHours: defaultOpeningHours,
         matchScore: score
       };
     });

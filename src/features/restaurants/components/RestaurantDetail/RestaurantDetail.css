@@ -16,8 +16,6 @@
 .menu-list { margin: 0; padding: 0; list-style: none; }
 .menu-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-bottom: 1px solid var(--sand-200); }
 .menu-list strong { flex-shrink: 0; color: var(--emerald-700); font-variant-numeric: tabular-nums; }
-.amenity-list { display: flex; flex-wrap: wrap; gap: 8px; }
-.amenity-chip { display: inline-flex; align-items: center; min-height: 36px; padding: 7px 12px; border-radius: var(--radius-full); background: var(--pastel-sky); color: var(--ink-800); font-size: 12px; }
 .detail-actions { display: grid; grid-template-columns: 1fr 1.2fr; gap: 10px; margin-top: 24px; }
 .detail-actions button { min-height: 52px; }
 .detail-footnote { justify-content: center; margin: 12px 0 0; color: var(--ink-600); font-size: 12px; }
