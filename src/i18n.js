@@ -124,7 +124,7 @@ export const translations = {
     aiConnectionError: "เชื่อมต่อเซิร์ฟเวอร์ AI ไม่สำเร็จ กรุณาเปิด backend ด้วยคำสั่ง npm run server",
     aiQuotaExceeded: "โควตา Cloud LLM หมดชั่วคราว",
     unknownError: "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ",
-    aiFallback: "{reason} จึงใช้ตัวกรองในเครื่องแทน",
+    aiFallback: "Gemini ใช้งานไม่ได้ ({reason}) จึงใช้ตัวกรองในเครื่องแทน",
     openMapsHint: "กดนำทางเพื่อค้นหาร้านใน Google Maps",
     getAiRecommendation: "รับคำแนะนำจาก AI"
   },
@@ -253,7 +253,7 @@ export const translations = {
     aiConnectionError: "Could not connect to the AI server. Start the backend with npm run server",
     aiQuotaExceeded: "Cloud LLM quota is temporarily exhausted",
     unknownError: "An unknown error occurred",
-    aiFallback: "{reason}, so local filters were used instead",
+    aiFallback: "Gemini is unavailable ({reason}), so local filters were used instead",
     openMapsHint: "Tap directions to find this restaurant in Google Maps",
     getAiRecommendation: "Get an AI recommendation"
   }

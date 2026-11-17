@@ -11,7 +11,7 @@ import pg from "pg";
 const { Pool } = pg;
 const app = express();
 const port = Number(process.env.PORT || 3001);
-const cloudLlmModel = process.env.CLOUD_LLM_MODEL || "openai/gpt-4.1-mini";
+const geminiModel = process.env.GEMINI_MODEL || "gemini-4-argon";
 
 const maxOtpAttempts = 5;
 const isProduction = process.env.NODE_ENV === "production";

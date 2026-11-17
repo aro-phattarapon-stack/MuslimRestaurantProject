@@ -1,3 +1,94 @@
-.favorites-gate .empty-state {
-  background: var(--surface-0);
+/* Same palette as the Home and Search pages. Move these to a global :root if you can. */
+.favorites-page {
+  --sp-ink: #4a2038;
+  --sp-muted: #7d6272;
+  --sp-pink: #e0508c;
+  --sp-pink-deep: #b02a63;
+  --sp-pink-soft: #fde8f1;
+  --sp-border: #f8d5e4;
+  --sp-gradient: linear-gradient(135deg, #ee7fae, #e0508c);
+}
+
+/* Title + count on one line */
+.favorites-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.favorites-heading .page-title {
+  margin: 4px 0 8px;
+  color: var(--sp-ink);
+}
+
+.favorites-count {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border: 1.5px solid var(--sp-border);
+  border-radius: var(--radius-full);
+  background: var(--sp-pink-soft);
+  color: var(--sp-pink-deep);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.favorites-page .section-description {
+  margin: 0 0 20px;
+  color: var(--sp-muted);
+  font-size: 15px;
+}
+
+/* Logged-out state */
+.favorites-gate .page-title {
+  margin: 4px 0 20px;
+  color: var(--sp-ink);
+}
+
+.gate-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 24px;
+  border: 1.5px solid var(--sp-border);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(224, 80, 140, 0.1);
+}
+
+.gate-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 8px;
+  border-radius: 20px;
+  background: var(--sp-pink-soft);
+  color: var(--sp-pink);
+}
+
+.gate-card h2 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--sp-ink);
+}
+
+.gate-card p {
+  margin: 0 0 12px;
+  color: var(--sp-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.gate-button {
+  min-height: 48px;
+  padding: 0 32px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--sp-gradient);
+  color: #fff;
+  font-weight: 600;
 }

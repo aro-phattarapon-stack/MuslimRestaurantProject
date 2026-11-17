@@ -91,27 +91,90 @@ export default function App() {
     setActiveTab("home");
   }
 
+  // async function handleAiRecommend(input) {
+  //   const prompt = input.trim();
+  //   if (!prompt) {
+  //     setAiMessage(t("aiPromptHint"));
+  //     return;
+  //   }
+
+  //   setAiLoading(true);
+  //   try {
+  //     const response = await fetch("/api/recommendations", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ prompt }),
+  //     });
+  //     let recommendation;
+  //     try {
+  //       recommendation = await response.json();
+  //     } catch {
+  //       throw new Error(t("aiInvalidResponse"));
+  //     }
+  //     if (!response.ok) {
+  //       throw new Error(recommendation.error || t("aiConnectionError"));
+  //     }
+
+  //     const appliedPreferences = applyRecommendation(recommendation);
+  //     setAiMessage(
+  //       appliedPreferences.relaxed
+  //         ? `${recommendation.message} ${t("aiNoExactMatch")}`
+  //         : recommendation.message
+  //     );
+  //   } catch (error) {
+  //     const preferences = parseRecommendationPrompt(prompt);
+  //     applyRecommendation(preferences);
+  //     const reason = error instanceof Error ? error.message : t("unknownError");
+  //     setAiMessage(t("aiFallback").replace("{reason}", reason));
+  //   } finally {
+  //     setAiLoading(false);
+  //   }
+  // }
+
+
   async function handleAiRecommend(input) {
     const prompt = input.trim();
+
     if (!prompt) {
       setAiMessage(t("aiPromptHint"));
       return;
     }
 
+    // ตรวจสอบก่อนว่าเป็นการค้นหาชื่อร้านโดยตรงหรือไม่
+    const directSearch = recommendRestaurants(restaurants, {
+      query: prompt,
+      zone: "ALL",
+      cuisine: "ทั้งหมด",
+      maxBudget: 2000
+    });
+
+    // ถ้าพบร้านจากข้อความที่พิมพ์ ให้แสดงผลค้นหาโดยตรง
+    if (directSearch.length > 0) {
+      setQuery(prompt);
+      setZone("ALL");
+      setCuisine("ทั้งหมด");
+      setBudget(2000);
+      setAiMessage("");
+      setActiveTab("search");
+      return;
+    }
+
     setAiLoading(true);
-    const localPreferences = parseRecommendationPrompt(prompt);
     try {
       const response = await fetch("/api/recommendations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt }),
       });
+
       let recommendation;
+
       try {
         recommendation = await response.json();
       } catch {
         throw new Error(response.ok ? t("aiInvalidResponse") : t("aiConnectionError"));
       }
+
       if (!response.ok) {
         if (recommendation.code === "CLOUD_LLM_QUOTA_EXCEEDED") {
           throw new Error(t("aiQuotaExceeded"));
@@ -119,10 +182,11 @@ export default function App() {
         throw new Error(recommendation.error || t("aiConnectionError"));
       }
 
-      applyRecommendation({ ...recommendation, ...localPreferences });
+      applyRecommendation(recommendation);
       setAiMessage(recommendation.message);
     } catch (error) {
-      applyRecommendation(localPreferences);
+      const preferences = parseRecommendationPrompt(prompt);
+      applyRecommendation(preferences);
       const reason = error instanceof Error ? error.message : t("unknownError");
       setAiMessage(t("aiFallback").replace("{reason}", reason));
     } finally {
@@ -131,11 +195,70 @@ export default function App() {
   }
 
   function applyRecommendation(preferences) {
+    const candidatePreferences = {
+      zone: preferences.zone || DEFAULT_FILTERS.zone,
+      cuisine: preferences.cuisine || DEFAULT_FILTERS.cuisine,
+      maxBudget: Math.min(
+        2000,
+        Math.max(50, preferences.maxBudget ?? DEFAULT_FILTERS.budget)
+      )
+    };
+
+    const fallbackPreferences = [
+      candidatePreferences,
+      { ...candidatePreferences, maxBudget: 2000 },
+      {
+        ...candidatePreferences,
+        zone: DEFAULT_FILTERS.zone,
+        maxBudget: 2000
+      },
+      {
+        zone: DEFAULT_FILTERS.zone,
+        cuisine: DEFAULT_FILTERS.cuisine,
+        maxBudget: 2000
+      }
+    ].find((candidate) =>
+      recommendRestaurants(restaurants, candidate).length > 0
+    );
+
+    const appliedPreferences = fallbackPreferences || candidatePreferences;
+
+    // ล้าง query เฉพาะการค้นหาแบบ AI Recommendation
     setQuery("");
-    setZone(preferences.zone || DEFAULT_FILTERS.zone);
-    setCuisine(preferences.cuisine || DEFAULT_FILTERS.cuisine);
-    setBudget(Math.min(2000, Math.max(50, preferences.maxBudget ?? DEFAULT_FILTERS.budget)));
+    setZone(appliedPreferences.zone);
+    setCuisine(appliedPreferences.cuisine);
+    setBudget(appliedPreferences.maxBudget);
     setActiveTab("search");
+
+    return {
+      ...appliedPreferences,
+      relaxed: appliedPreferences !== candidatePreferences
+    };
+  }
+
+  function applyRecommendation(preferences) {
+    const candidatePreferences = {
+      zone: preferences.zone || DEFAULT_FILTERS.zone,
+      cuisine: preferences.cuisine || DEFAULT_FILTERS.cuisine,
+      maxBudget: Math.min(2000, Math.max(50, preferences.maxBudget ?? DEFAULT_FILTERS.budget))
+    };
+    const fallbackPreferences = [
+      candidatePreferences,
+      { ...candidatePreferences, maxBudget: 2000 },
+      { ...candidatePreferences, zone: DEFAULT_FILTERS.zone, maxBudget: 2000 },
+      { zone: DEFAULT_FILTERS.zone, cuisine: DEFAULT_FILTERS.cuisine, maxBudget: 2000 }
+    ].find((candidate) => recommendRestaurants(restaurants, candidate).length > 0);
+    const appliedPreferences = fallbackPreferences || candidatePreferences;
+
+    setQuery("");
+    setZone(appliedPreferences.zone);
+    setCuisine(appliedPreferences.cuisine);
+    setBudget(appliedPreferences.maxBudget);
+    setActiveTab("search");
+    return {
+      ...appliedPreferences,
+      relaxed: appliedPreferences !== candidatePreferences
+    };
   }
 
   function renderRestaurantList(list) {
@@ -193,7 +316,7 @@ export default function App() {
         )}
 
         {activeTab === "search" && (
-          <SearchPage t={t} localize={localize} query={query} onQueryChange={setQuery} onSearch={() => {}} showFilters={showFilters} onToggleFilters={() => setShowFilters((current) => !current)} zone={zone} onZoneChange={setZone} zones={zones} cuisine={cuisine} onCuisineChange={setCuisine} cuisineTypes={cuisineTypes} budget={budget} onBudgetChange={setBudget} onReset={resetFilters} resultCount={filteredRestaurants.length}>
+          <SearchPage t={t} localize={localize} query={query} onQueryChange={setQuery} onSearch={() => { }} showFilters={showFilters} onToggleFilters={() => setShowFilters((current) => !current)} zone={zone} onZoneChange={setZone} zones={zones} cuisine={cuisine} onCuisineChange={setCuisine} cuisineTypes={cuisineTypes} budget={budget} onBudgetChange={setBudget} onReset={resetFilters} resultCount={filteredRestaurants.length}>
             {renderRestaurantList(filteredRestaurants)}
           </SearchPage>
         )}
