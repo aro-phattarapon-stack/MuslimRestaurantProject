@@ -10,30 +10,6 @@ export default function AuthModal({ mode, onClose, onAuthenticated, t }) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const [otpChallenge, setOtpChallenge] = useState(null);
-  const [otpPending, setOtpPending] = useState(false);
-  const [otpCode, setOtpCode] = useState("");
-  async function verifyOtp(event) {
-    event.preventDefault();
-    if (otpPending || !otpChallenge) return;
-    if (!/^\d{6}$/.test(otpCode)) {
-      setError(t("errorOtpLength"));
-      return;
-    }
-    try {
-      const response = await fetch("/api/auth/otp/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ challengeId: otpChallenge.challengeId, code: otpCode }),
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || t("errorOtpVerification"));
-      onAuthenticated(result.user);
-    } catch (verificationError) {
-      setError(verificationError.message);
-    }
-  }
 
   function submit(event) {
     event.preventDefault();
@@ -73,25 +49,18 @@ export default function AuthModal({ mode, onClose, onAuthenticated, t }) {
         <button className="auth-close" type="button" onClick={onClose} aria-label={t("close")}><X size={20} /></button>
         <div className="auth-mark"><LockKeyhole size={22} /></div>
         <span className="eyebrow">HALAL CHIANG RAI</span>
-        <h1 id="auth-title">{otpChallenge || otpPending ? t("verifyOtp") : view === "login" ? t("signIn") : t("signUp")}</h1>
-        <p className="auth-subtitle">{otpPending ? t("otpSending") : otpChallenge ? `${t("otpSent")} ${otpChallenge.email}` : t("favoriteRequiresLogin")}</p>
-        {otpChallenge || otpPending ? (
-          <form className="auth-form" onSubmit={verifyOtp}>
-            <label>{t("otp")}<input value={otpCode} onChange={(event) => setOtpCode(event.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" placeholder={t("otpPlaceholder")} disabled={otpPending} /></label>
-            {error && <p className="auth-error" role="alert">{error}</p>}
-            <button className="button-primary auth-submit" type="submit" disabled={otpPending}>{otpPending ? t("otpPreparing") : t("verifyOtp")}</button>
-          </form>
-        ) : null}
-        {!otpChallenge && !otpPending && <form className="auth-form" onSubmit={submit}>
+        <h1 id="auth-title">{view === "login" ? t("signIn") : t("signUp")}</h1>
+        <p className="auth-subtitle">{t("favoriteRequiresLogin")}</p>
+        <form className="auth-form" onSubmit={submit}>
           {view === "signup" && <label>{t("name")}<input value={name} onChange={(event) => setName(event.target.value)} placeholder={t("namePlaceholder")} autoComplete="name" /></label>}
           <label>{t("email")}<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder={t("emailPlaceholder")} autoComplete="email" /></label>
           <label>{t("password")}<span className="password-field"><input type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={t("passwordPlaceholder")} autoComplete={view === "login" ? "current-password" : "new-password"} /><button type="button" onClick={() => setShowPassword((current) => !current)} aria-label={t("showPassword")}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></span></label>
           {error && <p className="auth-error" role="alert">{error}</p>}
           <button className="button-primary auth-submit" type="submit">{t("continue")}</button>
-        </form>}
-        {!otpChallenge && !otpPending && <button className="auth-switch" type="button" onClick={() => { setView((current) => current === "login" ? "signup" : "login"); setError(""); }}>
+        </form>
+        <button className="auth-switch" type="button" onClick={() => { setView((current) => current === "login" ? "signup" : "login"); setError(""); }}>
           {view === "login" ? t("switchToSignup") : t("switchToLogin")}
-        </button>}
+        </button>
         <p className="auth-note">{t("authNote")}</p>
       </section>
     </div>

@@ -91,43 +91,16 @@ export default function App() {
     setActiveTab("home");
   }
 
-  async function handleAiRecommend(input) {
+  function handleAiRecommend(input) {
     const prompt = input.trim();
     if (!prompt) {
       setAiMessage(t("aiPromptHint"));
       return;
     }
 
-    setAiLoading(true);
     const localPreferences = parseRecommendationPrompt(prompt);
-    try {
-      const response = await fetch("/api/recommendations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
-      });
-      let recommendation;
-      try {
-        recommendation = await response.json();
-      } catch {
-        throw new Error(response.ok ? t("aiInvalidResponse") : t("aiConnectionError"));
-      }
-      if (!response.ok) {
-        if (recommendation.code === "CLOUD_LLM_QUOTA_EXCEEDED") {
-          throw new Error(t("aiQuotaExceeded"));
-        }
-        throw new Error(recommendation.error || t("aiConnectionError"));
-      }
-
-      applyRecommendation({ ...recommendation, ...localPreferences });
-      setAiMessage(recommendation.message);
-    } catch (error) {
-      applyRecommendation(localPreferences);
-      const reason = error instanceof Error ? error.message : t("unknownError");
-      setAiMessage(t("aiFallback").replace("{reason}", reason));
-    } finally {
-      setAiLoading(false);
-    }
+    applyRecommendation(localPreferences);
+    setAiMessage("");
   }
 
   function applyRecommendation(preferences) {

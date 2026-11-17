@@ -6,18 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "server": "node server/index.js"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
-    "dotenv": "latest",
-    "express": "latest",
-    "google-auth-library": "latest",
-    "helmet": "latest",
     "lucide-react": "latest",
-    "nodemailer": "^10.6.0",
-    "pg": "latest",
     "react": "latest",
     "react-dom": "latest",
     "vite": "latest"

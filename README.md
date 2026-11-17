@@ -15,24 +15,18 @@ mosques, and details that help users plan their visits with confidence.
 - Distinguish between `Halal Certified` and `Muslim-Friendly` venues with data provenance
 - Save favorite restaurants for signed-in users
 - Support Thai and English languages
-- Google/OTP authentication (requires the backend and PostgreSQL)
-- Record access logs for auditing and operational monitoring
 
 ## Technology
 
 - **Frontend:** React, Vite, CSS
-- **Backend:** Node.js, Express
-- **Database:** PostgreSQL
-- **Authentication:** Google OAuth and email OTP
-- **Security:** Helmet, hashed session tokens, and PostgreSQL access logs
+- **Authentication:** Local browser account for prototype favorites
 
 ## Requirements
 
 - Node.js 20 or later
 - npm
-- PostgreSQL 14 or later (only required for the backend and authentication)
 
-## Install and Run the Frontend
+## Install and Run
 
 ```bash
 git clone <repository-url>
@@ -48,31 +42,7 @@ Useful commands:
 ```bash
 npm run build       # Create a production build
 npm run preview     # Preview the production build
-npm run server      # Start the backend on port 3001
 ```
-
-## Configure the Backend
-
-Create a `.env` file in the project root with the following variables:
-
-```env
-PORT=3001
-NODE_ENV=development
-DATABASE_URL=postgresql://user:password@localhost:5432/halal_chiang_rai
-GOOGLE_CLIENT_ID=your-google-client-id
-SESSION_SECRET=use-a-secret-at-least-32-characters-long
-SMTP_USER=your-gmail-address
-SMTP_APP_PASSWORD=your-gmail-app-password
-```
-
-Create the database tables before starting the server:
-
-```bash
-psql "$DATABASE_URL" -f server/schema.sql
-npm run server
-```
-
-Do not commit `.env` files or secrets to the repository.
 
 ## Project Structure
 
@@ -83,9 +53,6 @@ src/
 ├── pages/                      # Home, Search, Favorites, and Account pages
 ├── App.jsx                     # Main frontend state and routing
 └── index.css                   # Global styles
-server/
-├── index.js                    # Express API and authentication
-└── schema.sql                  # PostgreSQL schema
 data_pipeline/                  # Restaurant data cleaning and merge scripts
 .docs/                          # Requirements, design, and prototype documents
 ```
@@ -104,7 +71,6 @@ data_pipeline/                  # Restaurant data cleaning and merge scripts
 - [Product backlog](.docs/01-requirements/backlog.md)
 - [Feature list](.docs/02-design/feature-list.md)
 - [Design system](.docs/02-design/design-system.md)
-- [Database schema](server/schema.sql)
 
 ## Primary User Roles
 
