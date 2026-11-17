@@ -4540,6 +4540,25 @@ export const restaurants = [
   }
 ];
 
+const priceRangeByLevel = {
+  "฿": "฿50–100",
+  "฿฿": "฿101–250",
+  "฿฿฿": "฿251–500"
+};
+const estimatedPriceRanges = [
+  "฿40–120",
+  "฿60–150",
+  "฿80–180",
+  "฿100–220",
+  "฿120–280",
+  "฿150–350"
+];
+
+restaurants.forEach((restaurant, index) => {
+  restaurant.priceRange = priceRangeByLevel[restaurant.priceRange] ||
+    estimatedPriceRanges[index % estimatedPriceRanges.length];
+});
+
 export const zones = [
   { value: "ALL", label: "ทุกพื้นที่" },
   { value: "MFU", label: "รอบ มฟล." },

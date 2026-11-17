@@ -274,7 +274,7 @@ export default function App() {
             onQueryChange={setQuery}
             onSearch={() => setActiveTab("search")}
             {...sharedAiProps} // <-- ส่ง AI Props ซิงค์หน้า Home
-            zones={zones}
+            zones={zones.map((item) => ({ ...item, label: localize(item.label) }))}
             selectedZone={zone}
             onZoneSelect={(nextZone) => {
               setZone(nextZone);

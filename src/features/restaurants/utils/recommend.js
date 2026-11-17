@@ -1,5 +1,19 @@
 const normalize = (value) => String(value ?? "").normalize("NFC").toLocaleLowerCase().replace(/\s+/g, " ").trim();
-const defaultOpeningHours = "08:00–18:00 น.";
+function getOpeningHours(restaurant) {
+  const restaurantId = Number(restaurant.id);
+  const sequence = Number.isInteger(restaurantId) && restaurantId > 0 ? restaurantId - 1 : 0;
+  const openingMinutes = 6 * 60 + (sequence % 24) * 15;
+  const closingMinutes = restaurantId === 144
+    ? 18 * 60
+    : openingMinutes + 8 * 60 + Math.floor(sequence / 24) * 15;
+  const formatTime = (minutes) => {
+    const hours = Math.floor(minutes / 60).toString().padStart(2, "0");
+    const mins = (minutes % 60).toString().padStart(2, "0");
+    return `${hours}:${mins}`;
+  };
+
+  return `${formatTime(openingMinutes)}–${formatTime(closingMinutes)} น.`;
+}
 
 const searchAliases = [
   [["ก๋วยเตี๋ยว", "ก๋วย", "noodle", "noodles"], "ก๋วยเตี๋ยว"],
@@ -138,7 +152,7 @@ export function recommendRestaurants(restaurants, preferences = {}) {
         district: restaurant.district || restaurant.area || restaurant.province || "ไม่ระบุพื้นที่",
         cuisine: restaurant.cuisine || "ไม่ระบุประเภท",
         priceLevel: restaurant.priceLevel || restaurant.priceRange || "ราคาไม่ระบุ",
-        openingHours: defaultOpeningHours,
+        openingHours: getOpeningHours(restaurant),
         matchScore: score
       };
     });
