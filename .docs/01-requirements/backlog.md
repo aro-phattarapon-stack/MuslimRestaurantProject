@@ -1,134 +1,100 @@
-# Product Backlog — Halal Chiang Rai (backlog.md)
-**Project:** Halal Restaurant & Facility Discovery Platform (Chiang Rai)  
-**Standard:** INVEST User Stories with Acceptance Criteria
+# Product Backlog — Halal Chiang Rai
+
+**Status:** aligned with the current frontend prototype
 
 ## Actors
-- **Muslim User**: Muslim residents in Chiang Rai, university students (e.g., MFU), or domestic/international tourists looking for halal dining and prayer facilities.
-- **Restaurant Owner**: Food service operators aiming to add, claim, and update business profiles, menus, and halal credentials.
-- **System Admin**: Platform operators moderating merchant verification documents, community reports, and data accuracy.
 
----
+- **Muslim User** — searches, views, saves, and navigates to restaurants
+- **Restaurant Owner** — future role for maintaining listings and certificates
+- **System Admin** — future role for verification and moderation
 
-## User Stories & Backlog Items
+## Implemented Stories
 
-### Specification Traceability
+### US01 — Browse by area
 
-Backlog-to-spec mapping (single primary functional mapping per story):
+As a Muslim User, I want to choose a Chiang Rai area so that I can start with
+restaurants relevant to my visit.
 
-| Story | Functional Mapping | Related NFR | Related LR |
-|---|---|---|---|
-| US01 [Core] | F01 [Core] | NFR01, NFR02, NFR03, NFR04, NFR05 | LR01, LR02, LR06 |
-| US02 | F02 | NFR01, NFR02, NFR04 | LR01 |
-| US03 | F03 | NFR01, NFR02, NFR04 | LR01 |
-| US04 | F04 | NFR01, NFR03 | LR11 |
-| US05 | F05 | NFR01, NFR04 | LR01 |
-| US06 [Core] | F06 [Core] | NFR01, NFR02, NFR03, NFR04 | LR11 |
-| US07 | F07 | NFR01, NFR03 | LR11, LR12, LR13 |
-| US08 | F08 | NFR01, NFR02, NFR04 | LR01 |
-| US09 | F09 | NFR01, NFR02, NFR06 | LR03, LR04, LR05 |
-| US10 | F10 | NFR01, NFR02, NFR04 | LR01 |
-| US11 | F11 | NFR01, NFR02, NFR03, NFR06 | LR03, LR04, LR05, LR14 |
-| US12 | F12 | NFR01, NFR06 | LR05, LR10, LR12 |
-| US13 | F13 | NFR01, NFR03, NFR06 | LR10, LR13 |
+**Acceptance criteria**
 
-### MoSCoW Prioritization (Phase 1)
+- Home shows MFU, Chiang Rai city, Mae Sai, and other Chiang Rai area shortcuts.
+- Selecting an area opens Search with the selected area applied to matching logic.
 
-Priorities are relative to the first release and the Golden Thread: **Search & View Halal Restaurant Detail**. "Won't" means deferred from Phase 1, not permanently rejected.
+### US02 — Search restaurants
 
-| Priority | Stories | Rationale |
-|---|---|---|
-| **Must** | US01, US02, US03, US04, US06, US07 | Delivers the core discovery, search, restaurant-detail, halal classification, and verification workflow. Without these stories, users cannot reliably find and assess a venue. |
-| **Should** | US08, US09, US12, US13 | Adds prayer-facility discovery, saved places, merchant-maintained data, and issue reporting. These materially improve usefulness and data quality but do not block the core happy path. |
-| **Could** | US05, US11 | Recommendations and community reviews improve personalization and trust, but the first release can operate with explicit filters, verified provenance, and administrator-managed data. |
-| **Won't** | US10 | Multi-stop trip planning is valuable for a later release but is outside the first-release restaurant discovery workflow and requires additional route-planning complexity. |
+As a Muslim User, I want to search restaurant names, dishes, and areas so that
+I can find a suitable restaurant quickly.
 
-### Epic 1: Discovery, Map & Location
-- **US01 [Core] — Halal Map & Nearby Venues**
-  - *Story:* As a Muslim User, I want to explore an interactive map displaying nearby halal eateries, mosques, and Muslim-friendly venues based on my current location, so that I can quickly reach verified dining spots.
-  - *Acceptance Criteria:*
-    - Prompts for runtime GPS permissions compliant with privacy regulations (opt-in)[cite: 2].
-    - Renders real-time distance calculations for mapped pins.
-    - Allows seamless switching between interactive Map View and scrollable Card List View.
+**Acceptance criteria**
 
-- **US02 — University & Area-Based Discovery**
-  - *Story:* As a Muslim User, I want to filter locations by specific zones (e.g., surrounding Mae Fah Luang University, Chiang Rai City Center), so that I can discover dining options in areas I plan to visit.
-  - *Acceptance Criteria:*
-    - Provides dedicated quick-filters for high-traffic student and tourist zones.
-    - Limits search results strictly within the boundaries of the selected district.
+- Search is updated as the query changes.
+- Search terms are matched against restaurant name, location, cuisine,
+  description, price text, halal status, and menu item names.
+- Thai and English aliases are supported for common terms such as noodles,
+  coffee, desserts, halal, MFU, and Mae Sai.
 
----
+### US03 — Manual filters removed from Search
 
-### Epic 2: Search, Filters & Smart Recommendations
-- **US03 — Keyword Search & Multi-Criteria Filtering**
-  - *Story:* As a Muslim User, I want to search venues by name and filter by cuisine type, price range, distance, and available amenities, so that I can find options matching my preferences and budget.
-  - *Acceptance Criteria:*
-    - Supports real-time text query for restaurant names and specific dish keywords.
-    - Supports multi-select filter combinations.
+The Search page no longer exposes separate cuisine and budget controls. Users
+search directly with text, while the Home recommendation prompt can still
+interpret area, cuisine, and budget preferences.
 
-- **US04 — Halal vs. Muslim-Friendly Classification**
-  - *Story:* As a Muslim User, I want clear visual separation between officially certified halal venues and uncertified Muslim-friendly establishments, so that I can make dining choices according to my personal religious standards.
-  - *Acceptance Criteria:*
-    - Enforces distinct badges: "Halal Certified" vs. "Muslim-Friendly"[cite: 2].
-    - Clearly outlines conditions (e.g., "Muslim-owned kitchen", "Pork-free / Alcohol-free")[cite: 2].
+### US04 — View restaurant details
 
-- **US05 — Preference-Based Smart Recommendations**
-  - *Story:* As a Muslim User, I want tailored recommendations based on selected criteria (e.g., budget limits, dietary preferences, on-site prayer rooms), so that I can make faster decisions without manual searching.
-  - *Acceptance Criteria:*
-    - Ranks and prioritizes listings matching all user-defined constraints at the top of the feed.
+As a Muslim User, I want to inspect a restaurant before visiting.
 
----
+**Acceptance criteria**
 
-### Epic 3: Restaurant Profiles & Halal Verification
-- **US06 [Core] — Comprehensive Restaurant Details & Amenities**
-  - *Story:* As a Muslim User, I want to view detailed restaurant profiles including menus, pricing, operating schedules, parking availability, and prayer spaces, so that I can plan visits effectively.
-  - *Acceptance Criteria:*
-    - Displays standard operational metadata: recommended dishes, price tier, business hours, and contact details.
-    - Features explicit amenity indicator tags (e.g., Dedicated Musalla, Dedicated Parking, Wi-Fi).
+- A card opens a detail sheet.
+- The sheet shows cuisine, price, description, area, opening hours, menu and
+  prices when present, favorite action, and Google Maps directions.
 
-- **US07 — Halal Status & Verification Provenance**
-  - *Story:* As a Muslim User, I want to inspect halal accreditation details, certificate images, and issuing authorities, so that I can verify the authenticity and validity of the establishment.
-  - *Acceptance Criteria:*
-    - Shows digital certificate proof along with expiry dates (if certified)[cite: 2].
-    - Explicitly labels data sources (e.g., Provincial Islamic Committee of Chiang Rai, self-declared owner statement)[cite: 2].
+### US05 — Save favorites
 
----
+As a Muslim User, I want to save restaurants for later.
 
-### Epic 4: Facilities, Planning & Personalization
-- **US08 — Mosque & Musalla Finder**
-  - *Story:* As a Muslim User, I want to locate nearby mosques and public prayer rooms with prayer schedules and facility details, so that I can fulfill daily prayers on time.
-  - *Acceptance Criteria:*
-    - Displays map pins for designated worship spaces with ablution (wudu) facility indicators (gender-separated).
-    - Features local daily prayer timetables.
+**Acceptance criteria**
 
-- **US09 — Bookmarked Favorites**
-  - *Story:* As an authenticated Muslim User, I want to bookmark preferred restaurants and facilities, so that I can quickly revisit them without searching again.
-  - *Acceptance Criteria:*
-    - Features a single-tap bookmark toggle on profile cards and detail pages.
-    - Synchronizes saved items to a personal Bookmark Library under the user profile.
+- Saving requires a local prototype account.
+- Favorites can be viewed from the Favorites tab.
+- Favorites are stored per account in this browser.
 
-- **US10 — Halal Trip Planner**
-  - *Story:* As a Muslim User, I want to aggregate multiple restaurants, viewpoints, and mosques into a unified multi-stop itinerary, so that I can optimize travel routes across Chiang Rai.
-  - *Acceptance Criteria:*
-    - Supports adding multiple distinct venue pins into a sequenced itinerary.
-    - Calculates total travel route and distance across all stops.
+### US06 — Use the app in two languages
 
----
+As a Muslim User, I want to switch between Thai and English.
 
-### Epic 5: Community, Feedback & Merchant Portal
-- **US11 — Community Ratings & Reviews**
-  - *Story:* As an authenticated Muslim User, I want to leave star ratings, written commentary, and photo reviews, so that I can share firsthand dining experiences with the community.
-  - *Acceptance Criteria:*
-    - Provides a 1-to-5 star rating rubric with optional text feedback and photo uploads.
-    - Enforces authentication and compliance with PDPA consent recording prior to submission[cite: 2].
+**Acceptance criteria**
 
-- **US12 — Merchant Self-Service Portal**
-  - *Story:* As a Restaurant Owner, I want to manage my listing details, modify active menus, update business hours, and submit official halal documents, so that customer-facing data remains accurate.
-  - *Acceptance Criteria:*
-    - Provides a secure merchant dashboard for profile updates.
-    - Supports document upload endpoints for certificate verification[cite: 2].
+- The header language control switches between Thai and English.
+- The selected language is persisted in this browser.
 
-- **US13 — Crowdsourced Inaccuracy Reporting**
-  - *Story:* As a Muslim User, I want to flag outdated or incorrect venue details (e.g., permanent closure, relocated address, altered halal status), so that database accuracy is preserved.
-  - *Acceptance Criteria:*
-    - Dedicated "Report Issue" action on every profile page.
-    - Submissions route to an administrative moderation queue for review[cite: 2].
+### US07 — Use local recommendation prompts
+
+As a Muslim User, I want to describe an area, cuisine, or budget on Home.
+
+**Acceptance criteria**
+
+- The Home prompt parses supported local phrases into area, cuisine, and budget
+  preferences for ranked recommendations.
+- A short prompt matching a restaurant name opens Search with that query.
+- This is a local parser; no external AI service is currently connected.
+
+## Deferred Stories
+
+- **US08 — Live map and nearby facilities:** GPS, map tiles, distance, mosques,
+  musalla, and prayer schedules.
+- **US09 — Halal verification provenance:** certificate files, issuer, expiry,
+  and clear verified/unverified states.
+- **US10 — Community reviews:** authenticated ratings, text, and photos.
+- **US11 — Restaurant-owner portal:** claim/edit listings and submit documents.
+- **US12 — Issue reporting:** user reports routed to admin moderation.
+- **US13 — Trip planner:** multi-stop routes and total distance.
+
+## Priority
+
+| Priority | Current scope |
+|---|---|
+| Must | US01, US02, US04–US06 |
+| Should | US08–US12 after a backend is introduced |
+| Could | US07 improvements and richer recommendation logic |
+| Won’t in current prototype | Live maps, reviews, owner/admin workflows, trip planning |

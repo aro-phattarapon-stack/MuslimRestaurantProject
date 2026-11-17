@@ -23,7 +23,6 @@ export default function App() {
   const [zone, setZone] = useState(DEFAULT_FILTERS.zone);
   const [cuisine, setCuisine] = useState(DEFAULT_FILTERS.cuisine);
   const [budget, setBudget] = useState(DEFAULT_FILTERS.budget);
-  const [showFilters, setShowFilters] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
 
   const [account, setAccount] = useState(() => {
@@ -43,7 +42,7 @@ export default function App() {
     return storedLanguage === "en" ? "en" : "th";
   });
 
-  // <-- 1. เพิ่ม aiPrompt และ extraPreferences เพื่อซิงค์ข้อมูล AI ข้ามหน้า
+  // AI recommendation state is used by the Home page.
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiMessage, setAiMessage] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
@@ -70,17 +69,6 @@ export default function App() {
     () => restaurants.filter((restaurant) => favorites.includes(restaurant.id)),
     [favorites]
   );
-
-  const activeFilterCount = useMemo(() => {
-    let count = 0;
-    if (zone !== DEFAULT_FILTERS.zone) count++;
-    if (cuisine !== DEFAULT_FILTERS.cuisine) count++;
-    if (budget !== DEFAULT_FILTERS.budget) count++;
-    if (extraPreferences.openNow) count++;
-    if (extraPreferences.halalOnly) count++;
-    if (extraPreferences.requiredAmenities?.length) count++;
-    return count;
-  }, [zone, cuisine, budget, extraPreferences]);
 
   const t = (key) => translate(language, key);
   const localize = (value) => translateValue(language, value);
@@ -133,10 +121,10 @@ export default function App() {
     setActiveTab("home");
   }
 
-  // <-- 4. อัปเดต handleAiRecommend ให้ซิงค์ aiPrompt ทั้ง 2 หน้า
+  // Apply AI recommendations from the Home page.
   async function handleAiRecommend(input) {
     const prompt = (input ?? aiPrompt).trim();
-    setAiPrompt(prompt); // เก็บข้อความที่ผู้ใช้ถามไว้ให้เห็นตรงกันทั้งหน้า Home และ Search
+    setAiPrompt(prompt);
 
     if (!prompt) {
       setAiMessage(t("aiPromptHint"));
@@ -225,7 +213,7 @@ export default function App() {
     );
   }
 
-  // <-- 6. รวม Props ของ AI ไว้ชุดเดียว เพื่อส่งให้ทั้ง HomePage และ SearchPage ซิงค์กัน
+  // Keep the AI props together for the Home page.
   const sharedAiProps = {
     aiPrompt,
     onAiPromptChange: setAiPrompt,
@@ -305,24 +293,10 @@ export default function App() {
         {activeTab === "search" && (
           <SearchPage
             t={t}
-            localize={localize}
             query={query}
             onQueryChange={setQuery}
             onSearch={() => {}} // ช่อง SearchBar ปกติใช้กรองชื่อร้านแบบ Real-time ผ่าน query
-            showFilters={showFilters}
-            onToggleFilters={() => setShowFilters((current) => !current)}
-            zone={zone}
-            onZoneChange={(val) => { setZone(val); setAiMessage(""); }}
-            zones={zones}
-            cuisine={cuisine}
-            onCuisineChange={(val) => { setCuisine(val); setAiMessage(""); }}
-            cuisineTypes={cuisineTypes}
-            budget={budget}
-            onBudgetChange={(val) => { setBudget(val); setAiMessage(""); }}
-            onReset={resetFilters}
             resultCount={filteredRestaurants.length}
-            activeFilterCount={activeFilterCount}
-            {...sharedAiProps} // <-- ส่ง AI Props ชุดเดียวกันซิงค์หน้า Search
           >
             {renderRestaurantList(filteredRestaurants)}
           </SearchPage>

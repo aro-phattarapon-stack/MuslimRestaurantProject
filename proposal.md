@@ -1,36 +1,61 @@
 # Proposal: Halal Chiang Rai
 
-## Problem Statement
+## Current Product Direction
 
-Muslim residents and travelers in Chiang Rai face difficulties when searching for halal restaurants, Muslim-friendly restaurants. Information is scattered across general search engines, social media, and recommendations from people they know. As a result, users have to spend time manually checking restaurant names, locations, opening hours, menus, prices, and available facilities.
+Halal Chiang Rai is a mobile-first tool for discovering halal restaurants in
+Chiang Rai. The working implementation is a React/Vite frontend prototype that
+uses a bundled restaurant dataset. It currently focuses on fast search,
+area-based discovery, restaurant details, favorites,
+and Google Maps directions.
 
-The bigger challenge is not only finding a place, but also determining the reliability of its halal status. Some restaurants have outdated information, lack evidence of halal certification, or use terms that do not clearly distinguish between certified halal restaurants and Muslim-friendly restaurants. This makes it difficult for users to make informed decisions and may result in arriving at a restaurant that is already closed, does not meet their religious requirements, or does not have the expected prayer facilities.
+The prototype is intentionally useful without a backend: users can browse as
+guests, while account creation is only required to save favorites. Account,
+session, language, and favorite data are stored in the browser for development
+purposes.
 
-This project therefore proposes a platform for discovering halal food and related places in Chiang Rai. The platform will bring together information about restaurants, mosques, and prayer facilities in one place. Users will be able to search and filter places based on location, food type, price, distance, and available facilities. The platform will also display data sources and clearly distinguish between **Halal Certified** and **Muslim-Friendly** statuses. Users will be able to access basic information through Guest Mode, while location data will only be used when necessary to calculate distances and will not be stored as personal location history.
+## Problem
+
+Muslim residents, students, and travelers often need to check restaurant names,
+locations, opening hours, menus, prices, and halal-related information across
+multiple sources. A focused restaurant directory can reduce that search effort
+and make the available information easier to compare.
+
+The current app addresses this problem with:
+
+- Search across restaurant names, menu items, areas, cuisine, descriptions, and
+  halal-related text
+- Area shortcuts for MFU, Chiang Rai city, Mae Sai, and other districts
+- Local recommendation prompts for area, cuisine, and budget
+- Restaurant detail sheets with menu, price, opening hours, location, and
+  directions
+- A visible disclaimer asking users to confirm halal status with the restaurant
 
 ## Target Users
 
-### Primary Users: Muslim Users
+### Primary: Muslim User
 
-- **Muslim residents in Chiang Rai**  
-  Need to find restaurants near their home or workplace, check opening hours and prices, and save frequently visited restaurants.
+- Residents who want to find restaurants near familiar areas
+- Students who need affordable options near Mae Fah Luang University
+- Domestic and international visitors who need concise restaurant information
 
-- **Students and university students in the area, such as Mae Fah Luang University students**  
-  Need quick access to affordable halal food options that are located near the university area.
+### Future Secondary Roles
 
-- **Domestic and international Muslim tourists**  
-  Need to plan meals, find prayer facilities, and navigate between destinations in Chiang Rai using reliable and up-to-date information.
+- **Restaurant Owner:** maintain listing information and submit verification
+  documents through a future backend portal
+- **System Admin:** review records, manage verification, and moderate reports
+  through a future operations interface
 
-The common needs of these users are fast and convenient search, verifiable halal status information, accurate locations and distances, up-to-date restaurant details, and information about facilities such as Musalla/prayer rooms, parking, and restrooms.
+## Scope Boundary
 
-### Secondary Users
-
-- **Restaurant Owners**  
-  Need to add or claim their restaurant profiles, update menus and opening hours, and submit halal certification documents so that their information remains accurate and reaches their target customers.
-
-- **System Admins**  
-  Need to verify certification documents, manage restaurant statuses, moderate community reports, and maintain the accuracy of information on the platform.
+The current prototype does not yet provide live GPS, an interactive map,
+mosque/prayer data, certificate evidence, community reviews, issue reporting,
+owner/admin portals, trip planning, or server-side compliance storage. These
+remain future product directions and are tracked in the requirements and
+backlog documents.
 
 ## Expected Outcome
 
-Muslim users will be able to search for and compare halal restaurants in Chiang Rai with greater confidence and in less time.
+In the current phase, a Muslim User can find and compare bundled Chiang Rai
+restaurant records in fewer steps, inspect the available details, save a
+restaurant locally, and open directions. Future phases can add verified
+provenance and operational workflows once a backend is introduced.

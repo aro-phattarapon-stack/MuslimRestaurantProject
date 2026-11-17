@@ -1,107 +1,94 @@
-# Diagrams D1–D4 — MuslimRestaurantProj (Halal Chiang Rai)
+# Diagrams — Current Frontend Prototype
 
-## D1 — System Context (C4)
+These diagrams describe the code that exists today. Backend, map, and
+compliance services are shown as future boundaries rather than implemented
+components.
+
+## D1 — Current User Context
 
 ```mermaid
-flowchart TD
-    subgraph SYS["MuslimRestaurantProj"]
-        SYSTEM["Halal Restaurant Discovery Platform"]
-    end
+flowchart LR
+    USER["Muslim User"]
+    APP["Halal Chiang Rai<br/>React/Vite frontend"]
+    DATA[("Bundled restaurant dataset")]
+    LS[("Browser localStorage")]
+    MAP["Google Maps URL"]
 
-    MUSLIM["Muslim User"]
-    OWNER["Restaurant Owner"]
-    MAPSVC["Map Service<br/>(OpenStreetMap/MapLibre)"]
-
-    MUSLIM -->|Search & view halal restaurants| SYSTEM
-    MUSLIM -->|Share GPS location| SYSTEM
-    SYSTEM -->|Show pins & nearby venues| MUSLIM
-
-    OWNER -->|Manage listing & submit halal documents| SYSTEM
-    SYSTEM -->|Receive certification proof| OWNER
-
-    SYSTEM -->|Fetch map tiles & geodata| MAPSVC
-    MAPSVC -->|Return map data| SYSTEM
+    USER -->|search, view, save| APP
+    APP -->|read| DATA
+    APP -->|account, session, language, favorites| LS
+    APP -->|open directions| MAP
 ```
 
----
-
-## D2 — Use Case Diagram
+## D2 — Current UI Flow
 
 ```mermaid
 flowchart TD
-    MUSLIM["Muslim User"]
-    OWNER2["Restaurant Owner"]
+    HOME["Home"]
+    SEARCH["Search"]
+    DETAIL["Restaurant detail sheet"]
+    FAV["Favorites"]
+    ACCOUNT["Account"]
+    AUTH["Local auth modal"]
 
-    UC1(("Search & View Halal Restaurant<br/>(Core Workflow)"))
-    UC2(("View Restaurant Details & Amenities"))
-    UC3(("Rate & Review Restaurant"))
-    UC4(("Save to Favorites"))
-    UC5(("Verify Halal Certificate"))
-    UC6(("Manage Listing & Submit Documents"))
-
-    MUSLIM --> UC1
-    MUSLIM --> UC2
-    MUSLIM --> UC3
-    MUSLIM --> UC4
-    MUSLIM --> UC5
-    OWNER2 --> UC6
-
-    UC1 -.->|include| UC2
-    UC1 -.->|include| UC5
-    UC3 -.->|include| UC5
-    UC6 -.->|include| UC5
+    HOME -->|area shortcut / view all| SEARCH
+    HOME -->|tap card| DETAIL
+    SEARCH -->|tap card| DETAIL
+    DETAIL -->|save| AUTH
+    DETAIL -->|directions| MAP["Google Maps"]
+    FAV -->|signed out| AUTH
+    FAV -->|signed in| DETAIL
+    ACCOUNT -->|sign out| HOME
+    AUTH -->|success| ACCOUNT
 ```
 
----
-
-## D3 — High-level Architecture
+## D3 — Current Component Architecture
 
 ```mermaid
 flowchart TD
-    CLIENT["Client<br/>Mobile Web App (Mobile-first, 480px)"]
-    API["Server<br/>REST API (Express/FastAPI)"]
-    DB[("Database<br/>PostgreSQL / PostGIS")]
+    APP["App.jsx<br/>state + tab switching"]
+    HOME["HomePage"]
+    SEARCH["SearchPage"]
+    LIST["RestaurantList"]
+    CARD["RestaurantCard"]
+    DETAIL["RestaurantDetail"]
+    FAV["FavoritesPage"]
+    ACCOUNT["AccountPage"]
+    AUTH["AuthModal"]
+    RECOMMEND["recommend.js"]
+    DATA["restaurants.js"]
+    I18N["i18n.js"]
 
-    subgraph SERVICES["Server Side Services"]
-        AUTH["Auth & Consent Service"]
-        SEARCH["Search & Recommendation Service"]
-        VERIFY["Halal Verification Service"]
-    end
-
-    CLIENT -->|HTTPS requests| API
-    API --> SERVICES
-    AUTH -->|PDPA consent| DB
-    SEARCH -->|Query venues| DB
-    VERIFY -->|Certification records| DB
-
-    subgraph DATA["Database Tables"]
-        T1[users]
-        T2[restaurants]
-        T3[halal_certifications]
-        T4[reviews]
-        T5[favorites]
-        T6[prayer_places]
-        T7[consent]
-        T8[access_log]
-    end
-
-    DB --- DATA
+    APP --> HOME
+    APP --> SEARCH
+    APP --> FAV
+    APP --> ACCOUNT
+    APP --> AUTH
+    APP --> DETAIL
+    HOME --> LIST
+    SEARCH --> LIST
+    FAV --> LIST
+    LIST --> CARD
+    APP --> RECOMMEND
+    RECOMMEND --> DATA
+    APP --> I18N
 ```
 
----
-
-## D4 — Activity Diagram (Core Workflow, 5 Steps)
+## D4 — Search Activity
 
 ```mermaid
 flowchart TD
-    ST(( )) --> S1[1. Open the app]
-    S1 --> S2[2. Let the app find nearby places]
-    S2 --> D1{GPS location allowed?}
-    D1 -->|No| S2
-    D1 -->|Yes| S3[3. Search for a restaurant]
-    S3 --> S4[4. Pick a restaurant]
-    S4 --> D2{Found the restaurant wanted?}
-    D2 -->|No| S3
-    D2 -->|Yes| S5[5. Make a choice: directions or save to favorites]
-    S5 --> EN(( ))
+    START((Start)) --> INPUT["Enter search query"]
+    INPUT --> MATCH["recommendRestaurants()"]
+    MATCH --> RESULTS{"Any matching restaurants?"}
+    RESULTS -->|Yes| CARDS["Show ranked cards"]
+    RESULTS -->|No| EMPTY["Show empty state"]
+    CARDS --> DETAIL["Open detail sheet"]
+    DETAIL --> ACTION{"Save or directions?"}
+    ACTION -->|Save| LOGIN{"Signed in?"}
+    LOGIN -->|No| AUTH["Open local auth modal"]
+    LOGIN -->|Yes| STORE["Store favorite in localStorage"]
+    ACTION -->|Directions| MAP["Open Google Maps"]
+    EMPTY --> CLEAR["Clear search"]
+    CLEAR --> MATCH
 ```

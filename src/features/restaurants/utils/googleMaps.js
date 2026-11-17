@@ -1,28 +1,49 @@
-export function getGoogleMapsUrl(restaurant) {
-  const hasCoordinates =
-    Number.isFinite(restaurant.latitude) &&
-    Number.isFinite(restaurant.longitude);
+function getCoordinate(value, minimum, maximum) {
+  const coordinate = Number(value);
+  return Number.isFinite(coordinate) && coordinate >= minimum && coordinate <= maximum
+    ? coordinate
+    : null;
+}
 
-  if (hasCoordinates) {
-    return (
-      "https://www.google.com/maps/dir/?api=1" +
-      `&destination=${restaurant.latitude},${restaurant.longitude}`
-    );
-  }
+export function getRestaurantCoordinates(restaurant) {
+  const latitude = getCoordinate(restaurant?.latitude, -90, 90);
+  const longitude = getCoordinate(restaurant?.longitude, -180, 180);
 
-  const destination = [
-    restaurant.name,
-    restaurant.district,
-    "เชียงราย",
-    "ประเทศไทย"
+  return latitude === null || longitude === null
+    ? null
+    : { latitude, longitude };
+}
+
+function getRestaurantLabel(restaurant) {
+  return [
+    restaurant?.name,
+    restaurant?.address,
+    restaurant?.district || restaurant?.area,
+    restaurant?.province || "Chiang Rai",
+    "Thailand"
   ]
     .filter(Boolean)
-    .join(" ");
+    .join(", ");
+}
 
-  return (
-    "https://www.google.com/maps/search/?api=1" +
-    `&query=${encodeURIComponent(destination)}`
-  );
+export function getGoogleMapsUrl(restaurant) {
+  const coordinates = getRestaurantCoordinates(restaurant);
+
+  if (coordinates) {
+    const params = new URLSearchParams({
+      api: "1",
+      destination: `${coordinates.latitude},${coordinates.longitude}`,
+      travelmode: "driving"
+    });
+    return `https://www.google.com/maps/dir/?${params.toString()}`;
+  }
+
+  const params = new URLSearchParams({
+    api: "1",
+    query: getRestaurantLabel(restaurant)
+  });
+
+  return `https://www.google.com/maps/search/?${params.toString()}`;
 }
 
 export function openGoogleMaps(restaurant) {
