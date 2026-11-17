@@ -1,11 +1,50 @@
-.page-section { padding: 26px 0 16px; }
-.page-title { margin: 8px 0 20px; font-size: 26px; line-height: 1.35; font-weight: 700; }
-.page-section > .search-bar { margin-bottom: 16px; }
-.filter-toggle { display: flex; align-items: center; gap: 9px; width: 100%; min-height: 48px; padding: 12px; border: 1px solid var(--sand-200); border-radius: var(--radius-md); background: var(--surface-0); color: var(--ink-800); font-weight: 600; }
-.filter-toggle span { margin-left: auto; color: var(--ink-600); font-size: 12px; font-weight: 400; }
-.filter-panel { display: flex; flex-direction: column; gap: 10px; margin: 12px 0 20px; padding: 16px; border: 1px solid var(--sand-200); border-radius: var(--radius-lg); background: var(--surface-0); }
-.filter-panel select { width: 100%; min-height: 46px; padding: 10px; border: 1px solid var(--sand-200); border-radius: var(--radius-md); background: var(--surface-0); color: var(--ink-800); }
-.filter-panel input[type="range"] { width: 100%; accent-color: var(--emerald-700); }
-.results-heading { display: flex; align-items: center; justify-content: space-between; margin: 24px 0 14px; }
-.results-heading h2 { margin: 0; font-size: 18px; }
-.results-heading span { color: var(--ink-600); font-size: 13px; }
+/* Colors matched to the Home page. If Home uses shared tokens, swap these values for them. */
+.page-section {
+  --sp-ink: #4a2038;       /* plum headings, same as "เลือกพื้นที่" */
+  --sp-muted: #7d6272;
+  --sp-pink: #e0508c;      /* accent text/icons */
+  --sp-pink-deep: #b02a63; /* text on pale pink (4.5:1+) */
+  --sp-pink-soft: #fde8f1; /* pale fill */
+  --sp-border: #f8d5e4;    /* pink outline used on Home cards */
+  --sp-gradient: linear-gradient(135deg, #ee7fae, #e0508c);
+
+  padding: 20px 0 16px;
+}
+
+.page-title { margin: 4px 0 16px; font-size: 28px; line-height: 1.4; font-weight: 700; color: var(--sp-ink); }
+
+/* Search + filter button */
+.search-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.search-row .search-bar { flex: 1; min-width: 0; }
+
+.page-section .search-bar { border-color: var(--sp-border); box-shadow: 0 6px 20px rgba(224, 80, 140, 0.14); }
+.page-section .search-bar:focus-within { border-color: var(--sp-pink); box-shadow: 0 0 0 3px rgba(224, 80, 140, 0.2); }
+.page-section .search-bar input { color: var(--sp-ink); }
+.page-section .search-bar input::placeholder { color: #a98b9b; }
+.page-section .search-submit { background: var(--sp-gradient); color: #fff; }
+.page-section .search-clear { color: var(--sp-muted); }
+
+.filter-button { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 52px; height: 52px; border: 0; border-radius: var(--radius-full); background: var(--sp-gradient); color: #fff; box-shadow: 0 6px 20px rgba(224, 80, 140, 0.25); }
+.filter-button.is-active { box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--sp-pink); }
+
+/* Cuisine chips: same outlined-pink look as Home's area cards */
+.chip-row { display: flex; gap: 8px; margin: 0 -20px; padding: 2px 20px 4px; overflow-x: auto; scrollbar-width: none; }
+.chip-row::-webkit-scrollbar { display: none; }
+.chip { flex-shrink: 0; min-height: 44px; padding: 0 18px; border: 1.5px solid var(--sp-border); border-radius: var(--radius-full); background: #fff; color: var(--sp-ink); font-size: 14px; font-weight: 600; white-space: nowrap; }
+.chip.is-selected { border-color: var(--sp-pink); background: var(--sp-pink-soft); color: var(--sp-pink-deep); }
+
+/* Expanded filters */
+.filter-panel { display: flex; flex-direction: column; gap: 10px; margin: 12px 0 8px; padding: 16px; border: 1.5px solid var(--sp-border); border-radius: var(--radius-lg); background: #fff; }
+.filter-panel label { color: var(--sp-ink); font-weight: 600; }
+.filter-panel select { width: 100%; min-height: 46px; padding: 10px; border: 1.5px solid var(--sp-border); border-radius: var(--radius-md); background: #fff; color: var(--sp-ink); }
+.filter-panel .button-secondary { border: 1.5px solid var(--sp-border); background: #fff; color: var(--sp-pink-deep); font-weight: 600; }
+
+/* Pink slider (the default track rendered dark) */
+.filter-panel input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 999px; background: var(--sp-border); accent-color: var(--sp-pink); }
+.filter-panel input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 26px; border: 3px solid #fff; border-radius: 50%; background: var(--sp-pink); box-shadow: 0 1px 5px rgba(74, 32, 56, 0.3); }
+.filter-panel input[type="range"]::-moz-range-track { height: 6px; border-radius: 999px; background: var(--sp-border); }
+.filter-panel input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; border: 3px solid #fff; border-radius: 50%; background: var(--sp-pink); }
+
+.results-heading { display: flex; align-items: baseline; justify-content: space-between; margin: 20px 0 12px; }
+.results-heading h2 { margin: 0; font-size: 18px; color: var(--sp-ink); }
+.results-heading span { color: var(--sp-muted); font-size: 14px; }

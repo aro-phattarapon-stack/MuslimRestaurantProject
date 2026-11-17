@@ -1,89 +1,14 @@
-import { useState } from "react";
-import { ArrowRight, MapPin, Sparkles, Search } from "lucide-react";
+import { ArrowRight, MapPin } from "lucide-react";
+import AiRecommendForm from "../../components/AiRecommendForm/AiRecommendForm";
 import "./HomePage.css";
 
-
-
-function AiRecommendForm({
-  onAiRecommend,
-  aiMessage,
-  aiLoading,
-  t,
-}) {
-  const [aiPrompt, setAiPrompt] = useState("");
-
-  function submitRecommendation(event) {
-    event.preventDefault();
-
-    if (!aiPrompt.trim() || aiLoading) return;
-
-    onAiRecommend(aiPrompt);
-  }
-
-  return (
-    <section className="ai-recommend-banner">
-
-      {/* AI Banner Header */}
-      <div className="ai-recommend-header">
-        <div className="ai-recommend-icon">
-          <Sparkles size={34} strokeWidth={1.8} />
-        </div>
-
-        <div className="ai-recommend-text">
-          <h2>{t("aiTitle")}</h2>
-          <p>{t("aiSubtitle")}</p>
-        </div>
-      </div>
-
-      {/* AI Prompt Search */}
-      <form
-        className="ai-recommend-search"
-        onSubmit={submitRecommendation}
-      >
-        <Search size={21} />
-
-
-        <input
-          type="text"
-          value={aiPrompt}
-          maxLength={500}
-          onChange={(event) =>
-            setAiPrompt(event.target.value)
-          }
-          placeholder={t("aiPromptPlaceholder")}
-          aria-label={t("aiTitle")}
-        />
-
-        <button
-          type="submit"
-          disabled={!aiPrompt.trim() || aiLoading}
-          aria-label={t("getAiRecommendation")}
-        >
-          {aiLoading ? (
-            <span className="ai-loading-spinner" />
-          ) : (
-            <Search size={22} />
-          )}
-        </button>
-      </form>
-
-      {/* AI Response Message */}
-      {aiMessage && (
-        <p className="ai-recommend-message" role="status">
-          {aiMessage}
-        </p>
-      )}
-
-    </section>
-  );
-}
-
-
-
 export default function HomeView({
+  aiPrompt,
+  onAiPromptChange,
   onAiRecommend,
   aiMessage,
   aiLoading,
+  onClearAi,
   zones,
   selectedZone,
   onZoneSelect,
@@ -93,12 +18,14 @@ export default function HomeView({
 }) {
   return (
     <main className="home-page">
-
-      {/* AI Recommendation Banner */}
+      {/* AI Recommendation Banner (ซิงค์กับหน้า Search) */}
       <AiRecommendForm
+        aiPrompt={aiPrompt}
+        onAiPromptChange={onAiPromptChange}
         onAiRecommend={onAiRecommend}
         aiMessage={aiMessage}
         aiLoading={aiLoading}
+        onClearAi={onClearAi}
         t={t}
       />
 
@@ -117,8 +44,7 @@ export default function HomeView({
             .map((item) => (
               <button
                 key={item.value}
-                className={`zone-card ${selectedZone === item.value ? "selected" : ""
-                  }`}
+                className={`zone-card ${selectedZone === item.value ? "selected" : ""}`}
                 type="button"
                 onClick={() => onZoneSelect(item.value)}
               >
@@ -142,8 +68,6 @@ export default function HomeView({
 
         {children}
       </section>
-
     </main>
   );
 }
-
