@@ -1,19 +1,19 @@
 import { useMemo, useState } from "react";
 import { Globe2, MapPin, UserRound } from "lucide-react";
-import logoImg from "../logo-transparent.png";
+import logoImg from "./assets/logo-transparent.png";
 
-import { cuisineTypes, restaurants, zones } from "./features/restaurants/data/restaurants";
-import { parseRecommendationPrompt, recommendRestaurants } from "./features/restaurants/utils/recommend";
+import { cuisineTypes, restaurants, zones } from "./services/restaurants";
+import { parseRecommendationPrompt, recommendRestaurants } from "./utils/recommend";
 import BottomNav from "./components/BottomNav/BottomNav";
 import AboutPage from "./pages/About/AboutPage";
 import FavoritesPage from "./pages/Favorites/FavoritesPage";
 import HomePage from "./pages/Home/HomePage";
-import RestaurantDetail from "./features/restaurants/components/RestaurantDetail/RestaurantDetail";
-import RestaurantList from "./features/restaurants/components/RestaurantList/RestaurantList";
+import RestaurantDetail from "./components/restaurants/RestaurantDetail/RestaurantDetail";
+import RestaurantList from "./components/restaurants/RestaurantList/RestaurantList";
 import SearchPage from "./pages/Search/SearchPage";
 import AccountPage from "./pages/Account/AccountPage";
 import AuthModal from "./components/AuthModal/AuthModal";
-import { translate, translateValue } from "./i18n";
+import { translate, translateValue } from "./utils/i18n";
 
 const DEFAULT_FILTERS = { zone: "ALL", cuisine: "ทั้งหมด", budget: 300 };
 

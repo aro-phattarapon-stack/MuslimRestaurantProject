@@ -64,7 +64,7 @@ represented as available features until implemented:
 ## 6. Current Data and Verification Semantics
 
 Restaurant records are bundled in
-`src/features/restaurants/data/restaurants.js`. The app displays a
+`src/services/restaurants.js`. The app displays a
 “Verified” badge only when `restaurant.verified` is true. It does not currently
 display certificate evidence, expiry dates, a separate Muslim-Friendly badge,
 or an Unverified workflow.

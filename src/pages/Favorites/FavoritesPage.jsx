@@ -1,5 +1,5 @@
 import { Heart } from "lucide-react";
-import RestaurantList from "../../features/restaurants/components/RestaurantList/RestaurantList";
+import RestaurantList from "../../components/restaurants/RestaurantList/RestaurantList";
 
 import "./FavoritesPage.css";
 

@@ -34,7 +34,7 @@ features.
 
 - **Frontend:** React, Vite, JSX, CSS
 - **Icons:** lucide-react
-- **Data:** bundled JavaScript dataset in `src/features/restaurants/data/`
+- **Data:** bundled JavaScript dataset in `src/services/restaurants.js`
 - **Prototype persistence:** browser `localStorage`
 - **Directions:** Google Maps URL opened from restaurant coordinates/address
 
@@ -64,13 +64,13 @@ npm run preview     # Preview the production build
 ```text
 src/
 ├── App.jsx                         # App state and tab-based view switching
-├── components/                     # Header, navigation, auth, and search UI
-├── features/restaurants/           # Data, ranking, cards, list, and details
+├── components/                     # Shared UI and restaurant components
 ├── pages/                          # Home, Search, Favorites, Account, About
-├── i18n.js                         # Thai/English translations
-└── styles/                         # Global design tokens and layout
+├── services/                       # Bundled restaurant data
+├── utils/                          # Search, maps, and localization helpers
+└── assets/                         # Brand image and global styles
 data_pipeline/                     # Optional source-data cleaning/export scripts
-.docs/                              # Requirements and design documentation
+.docs/                              # DISCOVER, BUILD, TEST, DELIVER documentation
 ```
 
 ## Current User Flow
@@ -83,13 +83,21 @@ data_pipeline/                     # Optional source-data cleaning/export script
 
 ## Documentation
 
-- [Current requirements and implementation status](.docs/01-requirements/spec.md)
-- [Backlog and current scope](.docs/01-requirements/backlog.md)
-- [Feature list](.docs/02-design/feature-list.md)
-- [Prototype screens](.docs/02-design/prototype.md)
-- [User journey](.docs/02-design/user-journey.md)
-- [Architecture diagrams](.docs/02-design/diagrams.md)
-- [Implemented visual system](.docs/02-design/design-system.md)
+- [Company charter](.docs/discover/company-charter.md)
+- [User research](.docs/discover/user-research.md)
+- [Current requirements and implementation status](.docs/discover/requirements.md)
+- [Backlog and current scope](.docs/discover/product-backlog.md)
+- [Architecture](.docs/design/architecture.md)
+- [Feature list](.docs/design/feature-list.md)
+- [Prototype screens](.docs/design/prototype.md)
+- [User journey](.docs/design/user-journey.md)
+- [Architecture diagrams](.docs/design/diagrams/diagrams.md)
+- [Implemented visual system](.docs/design/design-system.md)
+- [Test plan](.docs/testing/test-plan.md)
+- [Test results](.docs/testing/test-results.md)
+- [Final case study](.docs/final/case-study.md)
+- [AI logic](.docs/final/ai-logic.md)
+- [Supporting documents](.docs/supporting/)
 
 ## User Roles
 
@@ -101,5 +109,5 @@ backend/operations phase.
 
 The `data_pipeline/` directory contains Python scripts for collecting, cleaning,
 merging, enriching, and exporting restaurant data. The Vite app currently reads
-the prepared JavaScript dataset under `src/features/restaurants/data/`; running
+the prepared JavaScript dataset under `src/services/`; running
 the pipeline is not required to start the frontend.

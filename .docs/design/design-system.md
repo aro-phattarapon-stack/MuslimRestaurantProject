@@ -1,7 +1,7 @@
 # Design System — Current Halal Chiang Rai UI
 
 This document reflects the implemented CSS in
-`src/styles/global.css` and page/component styles. The older emerald/sand
+`src/assets/styles/global.css` and page/component styles. The older emerald/sand
 specification is retained only as a future design direction; the current UI
 uses a pink/plum palette.
 

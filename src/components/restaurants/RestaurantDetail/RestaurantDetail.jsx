@@ -9,7 +9,7 @@ import {
   Check
 } from "lucide-react";
 
-import { openGoogleMaps } from "../../utils/googleMaps";
+import { openGoogleMaps } from "../../../utils/googleMaps";
 
 import "./RestaurantDetail.css";
 

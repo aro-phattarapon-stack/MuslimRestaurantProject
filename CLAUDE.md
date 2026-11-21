@@ -16,6 +16,6 @@ MuslimRestaurantProj is a mobile-first web application designed to help Muslim r
 - External Integrations: Geolocation API, Tile/Mapping Provider (OpenStreetMap / MapLibre)
 
 ## Rules for Agents
-- Adhere strictly to `.docs/02-design/design-system.md`: Enforce touch targets $\ge$ 44px, color palette tokens (`emerald-700`, `sand-100`, etc.), and prevent hardcoded hex values.
+- Adhere strictly to `.docs/design/design-system.md`: Enforce touch targets $\ge$ 44px, color palette tokens (`emerald-700`, `sand-100`, etc.), and prevent hardcoded hex values.
 - Maintain absolute actor consistency across all artifacts (`Muslim User`, `Restaurant Owner`, `System Admin`).
 - Ensure all backend designs reflect compliance duties specified in `rule.md` (specifically `access_log` for CCA §26 and `consent` store for PDPA).
