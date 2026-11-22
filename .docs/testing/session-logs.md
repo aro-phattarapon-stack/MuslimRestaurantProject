@@ -12,4 +12,5 @@
 | :--- | :---: | :---: | :--- | :--- |
 | Moderated Task-Based Sessions | 2026-11-17 | `U01`–`U02` ($n = 2$, Muslim) | Guided `1st test` & unassisted `2nd test` across T1–T3 | `Task based testing (1).xlsx` (de-identified timing log) |
 | Post-Test SUS & Feedback Sessions | 2026-11-17 (`17:28`–`23:59`) | `R01`–`R12` ($n = 12$: 5 Muslim, 7 General) | 10-item SUS questionnaire & open-ended feedback | `Halal Nue Sud  (1).xlsx` (restricted raw export; summarized in `sus-results.md`) |
-| Session Photos / Screen Recordings | 2026-11-17 | `U01`–`U12` (consented) | Media evidence of live system evaluation | *(Restricted Team Google Drive — link available to instructor upon request)* |
+| Session Photos / Screen Recordings | 2026-11-17 | `U01`–`U12` (consented) | Media evidence of live system evaluation | 
+[https://drive.google.com/drive/folders/1Xju9UEVWnYZ5cZTH0pYmISfd0bX4FN-E?usp=sharing]
